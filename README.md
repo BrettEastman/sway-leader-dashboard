@@ -51,7 +51,7 @@ Supporters who have become leaders themselves, representing downstream amplifica
 
 ## Tech Stack
 
-- **Next.js 16 (App Router)**
+- **Next.js 16 (App Router with React Compiler)**
 - **TypeScript**
 - **Supabase (Postgres)**
 - **Scoped CSS-in-JS**
