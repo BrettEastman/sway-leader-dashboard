@@ -106,9 +106,19 @@ At 100k+ supporters or leaders:
 
 ---
 
+## AI Usage
+
+AI tools were used as a development assistant - ChatGPT for discussion and preplanning, Cursor for scaffolding and iteration. All product decisions, metric definitions, and architectural choices were made intentionally and reviewed manually.
+
+---
+
 ## Running Locally
 
 ```bash
 npm install
 npm run dev
 ```
+
+---
+
+Environment variables for Supabase are documented in .env.example.

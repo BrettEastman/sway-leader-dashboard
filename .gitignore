@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# data files (will be loaded into Supabase)
+/data/*.json
+!/data/schema.json
