@@ -112,13 +112,84 @@ AI tools were used as a development assistant - ChatGPT for discussion and prepl
 
 ---
 
-## Running Locally
+## Setup Instructions
+
+### 1. Install Dependencies
 
 ```bash
 npm install
-npm run dev
 ```
+
+### 2. Set Up Supabase
+
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard) and create a new project
+2. Choose a project name (e.g., "sway-leader-dashboard")
+3. Set a database password (save this securely)
+4. Choose a region closest to you
+5. Wait for the project to initialize (~2 minutes)
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` and add your Supabase credentials:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-publishable-key
+SUPABASE_SECRET_KEY=your-secret-key
+```
+
+**Note:** The `SUPABASE_SECRET_KEY` (also called "secret" key in the dashboard) is used for admin operations that bypass RLS. The `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` is used for regular client operations.
+
+### 4. Copy/paste Supabase Credentials
+
+From your Supabase project dashboard:
+
+1. Go to **Project Settings → Data API**
+2. Copy the **URL** to NEXT_PUBLIC_SUPABASE_URL in .env.local
+3. Go to **API Keys**
+4. Copy the **Publishable key** to NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+5. Copy the **Secret key** to SUPABASE_SECRET_KEY
+
+### 5. Run Database Migration
+
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Open `supabase/migrations/001_initial_schema.sql`
+4. Copy the entire SQL file contents
+5. Paste into the SQL Editor
+6. Click **Run** to create all tables
+
+### 6. Load Data
+
+After the migration succeeds, load the JSON data into Supabase:
+
+```bash
+npm run load-data
+```
+
+This script will:
+
+- Read JSON files from the `data/` directory
+- Load them in the correct dependency order
+- Validate row counts
+- Report any errors
+
+**Note:** Make sure your `.env.local` file is configured before running this script.
 
 ---
 
-Environment variables for Supabase are documented in .env.example.
+## Running Locally
+
+After completing the setup steps above:
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` to see the application.
