@@ -94,9 +94,6 @@ export async function getNetworkReach(
       console.log(
         `[getNetworkReach] No network leaders found. None of the ${uniqueSupporterCount} supporters are leaders in OTHER viewpoint groups.`
       );
-      console.log(
-        `[getNetworkReach] Note: Leaders in the same viewpoint group are not counted as network leaders.`
-      );
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
