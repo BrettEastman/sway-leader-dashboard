@@ -1,6 +1,6 @@
-import { createAdminClient } from '../supabase/admin';
-import type { NetworkReachResult } from './types';
-import { BATCH_SIZE } from './utils';
+import { createAdminClient } from "../supabase/admin";
+import type { NetworkReachResult } from "./types";
+import { BATCH_SIZE } from "./utils";
 
 /**
  * Get network reach metrics for a leader
@@ -14,8 +14,8 @@ export async function getNetworkReach(
 ): Promise<NetworkReachResult> {
   try {
     // Input validation
-    if (!viewpointGroupId || typeof viewpointGroupId !== 'string') {
-      console.error('Invalid viewpointGroupId provided to getNetworkReach');
+    if (!viewpointGroupId || typeof viewpointGroupId !== "string") {
+      console.error("Invalid viewpointGroupId provided to getNetworkReach");
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
@@ -27,34 +27,13 @@ export async function getNetworkReach(
     // Step 1: Find supporters who are also leaders in other viewpoint groups
     // Get all supporters of this viewpoint group
     const { data: supporterRels, error: supporterError } = await supabase
-      .from('profile_viewpoint_group_rels')
-      .select('profile_id')
-      .eq('viewpoint_group_id', viewpointGroupId)
-      .eq('type', 'supporter');
-
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:28",
-        message: "supporterRels query result",
-        data: {
-          hasError: !!supporterError,
-          error: supporterError ? { message: supporterError.message } : null,
-          dataLength: supporterRels?.length || 0,
-          sampleData: supporterRels?.slice(0, 3) || [],
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "G",
-      }),
-    }).catch(() => {});
-    // #endregion
+      .from("profile_viewpoint_group_rels")
+      .select("profile_id")
+      .eq("viewpoint_group_id", viewpointGroupId)
+      .eq("type", "supporter");
 
     if (supporterError || !supporterRels || supporterRels.length === 0) {
-      console.error('Error fetching supporter relationships:', supporterError);
+      console.error("Error fetching supporter relationships:", supporterError);
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
@@ -62,128 +41,36 @@ export async function getNetworkReach(
     }
 
     const supporterProfileIds = supporterRels.map((rel) => rel.profile_id);
-
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:50",
-        message: "before leaderRels query",
-        data: {
-          supporterProfileIdsLength: supporterProfileIds.length,
-          batchSize: BATCH_SIZE,
-          numberOfBatches: Math.ceil(supporterProfileIds.length / BATCH_SIZE),
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "G",
-      }),
-    }).catch(() => {});
-    // #endregion
+    const uniqueSupporterCount = [...new Set(supporterProfileIds)].length;
+    console.log(
+      `[getNetworkReach] Found ${uniqueSupporterCount} unique supporters of viewpoint group ${viewpointGroupId}`
+    );
 
     // Step 2: Find which of these supporters are also leaders in other viewpoint groups (batched)
-    // First, let's check if ANY of these profiles are leaders anywhere (for debugging)
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:60",
-        message: "checking if any supporters are leaders (anywhere)",
-        data: { sampleProfileIds: supporterProfileIds.slice(0, 5) },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "H",
-      }),
-    }).catch(() => {});
-    // #endregion
-
-    // Check a sample to see if they're leaders anywhere (including current VG)
-    const sampleBatch = supporterProfileIds.slice(0, Math.min(10, supporterProfileIds.length));
-    const { data: sampleLeaderCheck, error: sampleError } = await supabase
-      .from('profile_viewpoint_group_rels')
-      .select('profile_id, viewpoint_group_id, type')
-      .in('profile_id', sampleBatch)
-      .eq('type', 'leader');
-
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:75",
-        message: "sample leader check result",
-        data: {
-          sampleSize: sampleBatch.length,
-          foundLeaders: sampleLeaderCheck?.length || 0,
-          sampleData: sampleLeaderCheck?.slice(0, 5) || [],
-          currentVG: viewpointGroupId,
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "H",
-      }),
-    }).catch(() => {});
-    // #endregion
-
-    const allLeaderRels: Array<{ profile_id: string; viewpoint_group_id: string }> = [];
-    let leaderError: { message: string; code?: string; details?: string; hint?: string } | null = null;
+    const allLeaderRels: Array<{
+      profile_id: string;
+      viewpoint_group_id: string;
+    }> = [];
+    let leaderError: {
+      message: string;
+      code?: string;
+      details?: string;
+      hint?: string;
+    } | null = null;
 
     for (let i = 0; i < supporterProfileIds.length; i += BATCH_SIZE) {
       const batch = supporterProfileIds.slice(i, i + BATCH_SIZE);
       const { data: batchRels, error: batchError } = await supabase
-        .from('profile_viewpoint_group_rels')
-        .select('profile_id, viewpoint_group_id')
-        .in('profile_id', batch)
-        .eq('type', 'leader')
-        .neq('viewpoint_group_id', viewpointGroupId);
+        .from("profile_viewpoint_group_rels")
+        .select("profile_id, viewpoint_group_id")
+        .in("profile_id", batch)
+        .eq("type", "leader")
+        .neq("viewpoint_group_id", viewpointGroupId);
 
       if (batchError) {
-        // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "network-reach.ts:65",
-            message: "leaderRels batch error",
-            data: {
-              batchIndex: Math.floor(i / BATCH_SIZE),
-              error: { message: batchError.message, code: batchError.code },
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run4",
-            hypothesisId: "G",
-          }),
-        }).catch(() => {});
-        // #endregion
         leaderError = batchError;
         break;
       }
-
-      // #region agent log
-      fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "network-reach.ts:80",
-          message: "leaderRels batch success",
-          data: {
-            batchIndex: Math.floor(i / BATCH_SIZE),
-            batchRelsCount: batchRels?.length || 0,
-            sampleRels: batchRels?.slice(0, 3) || [],
-          },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run4",
-          hypothesisId: "G",
-        }),
-      }).catch(() => {});
-      // #endregion
 
       if (batchRels) {
         allLeaderRels.push(...batchRels);
@@ -191,31 +78,12 @@ export async function getNetworkReach(
     }
 
     const leaderRels = allLeaderRels;
-
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:95",
-        message: "leaderRels query complete",
-        data: {
-          hasError: !!leaderError,
-          totalLeaderRels: allLeaderRels.length,
-          uniqueProfileIds: [...new Set(allLeaderRels.map((r) => r.profile_id))].length,
-          uniqueViewpointGroupIds: [...new Set(allLeaderRels.map((r) => r.viewpoint_group_id))].length,
-          error: leaderError ? { message: leaderError.message } : null,
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "G",
-      }),
-    }).catch(() => {});
-    // #endregion
+    const uniqueNetworkLeaderCount = leaderRels.length
+      ? [...new Set(leaderRels.map((r) => r.profile_id))].length
+      : 0;
 
     if (leaderError) {
-      console.error('Error fetching leader relationships:', leaderError);
+      console.error("Error fetching leader relationships:", leaderError);
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
@@ -223,29 +91,21 @@ export async function getNetworkReach(
     }
 
     if (!leaderRels || leaderRels.length === 0) {
-      // #region agent log
-      fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "network-reach.ts:110",
-          message: "no network leaders found, early return",
-          data: {
-            supporterCount: supporterProfileIds.length,
-            leaderRelsCount: 0,
-          },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run4",
-          hypothesisId: "G",
-        }),
-      }).catch(() => {});
-      // #endregion
+      console.log(
+        `[getNetworkReach] No network leaders found. None of the ${uniqueSupporterCount} supporters are leaders in OTHER viewpoint groups.`
+      );
+      console.log(
+        `[getNetworkReach] Note: Leaders in the same viewpoint group are not counted as network leaders.`
+      );
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
       };
     }
+
+    console.log(
+      `[getNetworkReach] Found ${uniqueNetworkLeaderCount} network leaders (supporters who are also leaders in other viewpoint groups)`
+    );
 
     // Step 3: Get profile and viewpoint group details for network leaders
     const networkLeaderProfileIds = [
@@ -256,25 +116,40 @@ export async function getNetworkReach(
     ];
 
     // Batch profiles query if needed
-    let profiles: Array<{ id: string; display_name_long: string | null; display_name_short: string | null; person_id: string | null }> = [];
-    let profilesError: { message: string; code?: string; details?: string; hint?: string } | null = null;
+    let profiles: Array<{
+      id: string;
+      display_name_long: string | null;
+      display_name_short: string | null;
+      person_id: string | null;
+    }> = [];
+    let profilesError: {
+      message: string;
+      code?: string;
+      details?: string;
+      hint?: string;
+    } | null = null;
 
     if (networkLeaderProfileIds.length > 0) {
       if (networkLeaderProfileIds.length <= BATCH_SIZE) {
         const { data, error } = await supabase
-          .from('profiles')
-          .select('id, display_name_long, display_name_short, person_id')
-          .in('id', networkLeaderProfileIds);
+          .from("profiles")
+          .select("id, display_name_long, display_name_short, person_id")
+          .in("id", networkLeaderProfileIds);
         profiles = data || [];
         profilesError = error;
       } else {
-        const allProfiles: Array<{ id: string; display_name_long: string | null; display_name_short: string | null; person_id: string | null }> = [];
+        const allProfiles: Array<{
+          id: string;
+          display_name_long: string | null;
+          display_name_short: string | null;
+          person_id: string | null;
+        }> = [];
         for (let i = 0; i < networkLeaderProfileIds.length; i += BATCH_SIZE) {
           const batch = networkLeaderProfileIds.slice(i, i + BATCH_SIZE);
           const { data: batchData, error: batchError } = await supabase
-            .from('profiles')
-            .select('id, display_name_long, display_name_short, person_id')
-            .in('id', batch);
+            .from("profiles")
+            .select("id, display_name_long, display_name_short, person_id")
+            .in("id", batch);
 
           if (batchError) {
             profilesError = batchError;
@@ -290,7 +165,7 @@ export async function getNetworkReach(
     }
 
     if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
+      console.error("Error fetching profiles:", profilesError);
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
@@ -299,24 +174,34 @@ export async function getNetworkReach(
 
     // Batch viewpoint groups query if needed
     let viewpointGroups: Array<{ id: string; title: string | null }> = [];
-    let vgError: { message: string; code?: string; details?: string; hint?: string } | null = null;
+    let vgError: {
+      message: string;
+      code?: string;
+      details?: string;
+      hint?: string;
+    } | null = null;
 
     if (networkLeaderViewpointGroupIds.length > 0) {
       if (networkLeaderViewpointGroupIds.length <= BATCH_SIZE) {
         const { data, error } = await supabase
-          .from('viewpoint_groups')
-          .select('id, title')
-          .in('id', networkLeaderViewpointGroupIds);
+          .from("viewpoint_groups")
+          .select("id, title")
+          .in("id", networkLeaderViewpointGroupIds);
         viewpointGroups = data || [];
         vgError = error;
       } else {
-        const allViewpointGroups: Array<{ id: string; title: string | null }> = [];
-        for (let i = 0; i < networkLeaderViewpointGroupIds.length; i += BATCH_SIZE) {
+        const allViewpointGroups: Array<{ id: string; title: string | null }> =
+          [];
+        for (
+          let i = 0;
+          i < networkLeaderViewpointGroupIds.length;
+          i += BATCH_SIZE
+        ) {
           const batch = networkLeaderViewpointGroupIds.slice(i, i + BATCH_SIZE);
           const { data: batchData, error: batchError } = await supabase
-            .from('viewpoint_groups')
-            .select('id, title')
-            .in('id', batch);
+            .from("viewpoint_groups")
+            .select("id, title")
+            .in("id", batch);
 
           if (batchError) {
             vgError = batchError;
@@ -332,7 +217,7 @@ export async function getNetworkReach(
     }
 
     if (vgError) {
-      console.error('Error fetching viewpoint groups:', vgError);
+      console.error("Error fetching viewpoint groups:", vgError);
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
@@ -364,43 +249,9 @@ export async function getNetworkReach(
       profileToViewpointGroups.set(rel.profile_id, existing);
     });
 
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "network-reach.ts:160",
-        message: "starting downstream queries",
-        data: {
-          networkLeaderCount: profileToViewpointGroups.size,
-          totalViewpointGroups: Array.from(profileToViewpointGroups.values()).flat().length,
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run4",
-        hypothesisId: "G",
-      }),
-    }).catch(() => {});
-    // #endregion
-
     for (const [profileId, vgIds] of profileToViewpointGroups.entries()) {
       const profile = profileMap.get(profileId);
       if (!profile) {
-        // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "network-reach.ts:175",
-            message: "profile not found in map",
-            data: { profileId },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run4",
-            hypothesisId: "G",
-          }),
-        }).catch(() => {});
-        // #endregion
         continue;
       }
 
@@ -408,71 +259,29 @@ export async function getNetworkReach(
       for (const vgId of vgIds) {
         const viewpointGroup = viewpointGroupMap.get(vgId);
 
-        // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "network-reach.ts:190",
-            message: "querying downstream supporters",
-            data: { profileId, vgId, viewpointGroupTitle: viewpointGroup?.title || null },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run4",
-            hypothesisId: "G",
-          }),
-        }).catch(() => {});
-        // #endregion
-
         // Get all supporters of this network leader's viewpoint group
         const { data: downstreamSupporterRels, error: dsError } = await supabase
-          .from('profile_viewpoint_group_rels')
-          .select('profile_id')
-          .eq('viewpoint_group_id', vgId)
-          .eq('type', 'supporter');
+          .from("profile_viewpoint_group_rels")
+          .select("profile_id")
+          .eq("viewpoint_group_id", vgId)
+          .eq("type", "supporter");
 
         if (dsError) {
-          // #region agent log
-          fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              location: "network-reach.ts:210",
-              message: "downstream supporters query error",
-              data: { vgId, error: { message: dsError.message } },
-              timestamp: Date.now(),
-              sessionId: "debug-session",
-              runId: "run4",
-              hypothesisId: "G",
-            }),
-          }).catch(() => {});
-          // #endregion
-          console.error(`Error fetching downstream supporters for VG ${vgId}:`, dsError);
+          console.error(
+            `Error fetching downstream supporters for VG ${vgId}:`,
+            dsError
+          );
           continue;
         }
 
-        const downstreamProfileIds = downstreamSupporterRels?.map((rel) => rel.profile_id) || [];
-
-        // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/7665a0af-ae78-46f1-b76e-023beb11d757", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "network-reach.ts:225",
-            message: "downstream supporters found",
-            data: { vgId, downstreamSupporterCount: downstreamProfileIds.length },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run4",
-            hypothesisId: "G",
-          }),
-        }).catch(() => {});
-        // #endregion
+        const downstreamProfileIds =
+          downstreamSupporterRels?.map((rel) => rel.profile_id) || [];
 
         if (downstreamProfileIds.length === 0) {
           networkLeaders.push({
             profileId,
-            displayName: profile.display_name_long || profile.display_name_short || null,
+            displayName:
+              profile.display_name_long || profile.display_name_short || null,
             viewpointGroupId: vgId,
             viewpointGroupTitle: viewpointGroup?.title || null,
             downstreamVerifiedVoters: 0,
@@ -483,22 +292,27 @@ export async function getNetworkReach(
 
         // Get person IDs for downstream profiles (batched if needed)
         const allDownstreamProfiles: Array<{ person_id: string | null }> = [];
-        let dpError: { message: string; code?: string; details?: string; hint?: string } | null = null;
+        let dpError: {
+          message: string;
+          code?: string;
+          details?: string;
+          hint?: string;
+        } | null = null;
 
         if (downstreamProfileIds.length <= BATCH_SIZE) {
           const { data, error } = await supabase
-            .from('profiles')
-            .select('person_id')
-            .in('id', downstreamProfileIds);
+            .from("profiles")
+            .select("person_id")
+            .in("id", downstreamProfileIds);
           if (data) allDownstreamProfiles.push(...data);
           dpError = error;
         } else {
           for (let i = 0; i < downstreamProfileIds.length; i += BATCH_SIZE) {
             const batch = downstreamProfileIds.slice(i, i + BATCH_SIZE);
             const { data: batchData, error: batchError } = await supabase
-              .from('profiles')
-              .select('person_id')
-              .in('id', batch);
+              .from("profiles")
+              .select("person_id")
+              .in("id", batch);
 
             if (batchError) {
               dpError = batchError;
@@ -514,7 +328,10 @@ export async function getNetworkReach(
         const downstreamProfiles = allDownstreamProfiles;
 
         if (dpError) {
-          console.error(`Error fetching downstream profiles for VG ${vgId}:`, dpError);
+          console.error(
+            `Error fetching downstream profiles for VG ${vgId}:`,
+            dpError
+          );
           continue;
         }
 
@@ -525,7 +342,8 @@ export async function getNetworkReach(
         if (downstreamPersonIds.length === 0) {
           networkLeaders.push({
             profileId,
-            displayName: profile.display_name_long || profile.display_name_short || null,
+            displayName:
+              profile.display_name_long || profile.display_name_short || null,
             viewpointGroupId: vgId,
             viewpointGroupTitle: viewpointGroup?.title || null,
             downstreamVerifiedVoters: 0,
@@ -536,15 +354,20 @@ export async function getNetworkReach(
 
         // Count verified voters (batched)
         let verifiedVoterCount = 0;
-        let vvError: { message: string; code?: string; details?: string; hint?: string } | null = null;
+        let vvError: {
+          message: string;
+          code?: string;
+          details?: string;
+          hint?: string;
+        } | null = null;
 
         for (let i = 0; i < downstreamPersonIds.length; i += BATCH_SIZE) {
           const batch = downstreamPersonIds.slice(i, i + BATCH_SIZE);
           const { count: batchCount, error: batchError } = await supabase
-            .from('voter_verifications')
-            .select('id', { count: 'exact', head: true })
-            .in('person_id', batch)
-            .eq('is_fully_verified', true);
+            .from("voter_verifications")
+            .select("id", { count: "exact", head: true })
+            .in("person_id", batch)
+            .eq("is_fully_verified", true);
 
           if (batchError) {
             vvError = batchError;
@@ -555,7 +378,10 @@ export async function getNetworkReach(
         }
 
         if (vvError) {
-          console.error(`Error counting downstream verified voters for VG ${vgId}:`, vvError);
+          console.error(
+            `Error counting downstream verified voters for VG ${vgId}:`,
+            vvError
+          );
           continue;
         }
 
@@ -564,7 +390,8 @@ export async function getNetworkReach(
 
         networkLeaders.push({
           profileId,
-          displayName: profile.display_name_long || profile.display_name_short || null,
+          displayName:
+            profile.display_name_long || profile.display_name_short || null,
           viewpointGroupId: vgId,
           viewpointGroupTitle: viewpointGroup?.title || null,
           downstreamVerifiedVoters: downstreamCount,
@@ -580,11 +407,10 @@ export async function getNetworkReach(
       totalDownstreamReach,
     };
   } catch (error) {
-    console.error('Unexpected error in getNetworkReach:', error);
+    console.error("Unexpected error in getNetworkReach:", error);
     return {
       networkLeaders: [],
       totalDownstreamReach: 0,
     };
   }
 }
-
