@@ -5,14 +5,14 @@
 export async function batchQuery<T, R>(
   items: T[],
   batchSize: number,
-  queryFn: (batch: T[]) => Promise<{ data: R[] | null; error: any }>
-): Promise<{ data: R[]; error: any }> {
+  queryFn: (batch: T[]) => Promise<{ data: R[] | null; error: unknown }>
+): Promise<{ data: R[]; error: unknown }> {
   if (items.length === 0) {
     return { data: [], error: null };
   }
 
   const allResults: R[] = [];
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);
@@ -32,4 +32,3 @@ export async function batchQuery<T, R>(
 }
 
 export const BATCH_SIZE = 100;
-
