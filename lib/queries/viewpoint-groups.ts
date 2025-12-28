@@ -2,12 +2,13 @@ import { createAdminClient } from "../supabase/admin";
 
 export interface ViewpointGroup {
   id: string;
-  title: string | null;
+  title: string; // Always a string after filtering
 }
 
 /**
  * Get all viewpoint groups (leaders) that have supporters
  * Only returns groups that actually have a following (supporter relationships)
+ * Filters out groups with null, empty, or "Untitled Group" titles
  * @returns List of viewpoint groups with id and title
  */
 export async function getAllViewpointGroups(): Promise<ViewpointGroup[]> {
@@ -55,9 +56,9 @@ export async function getAllViewpointGroups(): Promise<ViewpointGroup[]> {
       )
       .map((vg) => ({
         id: vg.id,
-        title: vg.title || "Untitled Group",
+        title: vg.title! as string, // Safe to assert since we filtered out nulls
       }))
-      .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+      .sort((a, b) => a.title.localeCompare(b.title));
 
     return filteredGroups;
   } catch (error) {

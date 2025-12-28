@@ -8,24 +8,33 @@ interface ElectoralInfluenceTableProps {
 export function ElectoralInfluenceTable({
   data,
 }: ElectoralInfluenceTableProps) {
-  // Sort jurisdictions by supporter count (descending)
-  const sortedJurisdictions = [...data.byJurisdiction].sort(
-    (a, b) => b.supporterCount - a.supporterCount
-  );
+  // Aggregate jurisdictions by name + state to combine duplicates
+  const jurisdictionMap = new Map<string, { name: string; state: string | null; count: number }>();
+
+  data.byJurisdiction.forEach((jurisdiction) => {
+    const name = jurisdiction.jurisdictionName || "Unknown";
+    const state = jurisdiction.state;
+    // Create a key from name + state (use "Unknown State" for null states to group them)
+    const key = `${name}|${state || "Unknown State"}`;
+
+    const existing = jurisdictionMap.get(key);
+    if (existing) {
+      existing.count += jurisdiction.supporterCount;
+    } else {
+      jurisdictionMap.set(key, {
+        name,
+        state,
+        count: jurisdiction.supporterCount,
+      });
+    }
+  });
+
+  // Convert map to array and sort by supporter count (descending)
+  const sortedJurisdictions = Array.from(jurisdictionMap.values())
+    .sort((a, b) => b.count - a.count);
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat("en-US").format(num);
-  };
-
-  const formatDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    // Use UTC date parts for deterministic formatting
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"];
-    return `${monthNames[month]} ${day}, ${year}`;
   };
 
   return (
@@ -49,47 +58,22 @@ export function ElectoralInfluenceTable({
                 </tr>
               </thead>
               <tbody>
-                {sortedJurisdictions.map((jurisdiction) => (
-                  <tr key={jurisdiction.jurisdictionId} className={styles.tr}>
+                {sortedJurisdictions.map((jurisdiction, index) => (
+                  <tr key={`${jurisdiction.name}-${jurisdiction.state}-${index}`} className={styles.tr}>
                     <td className={styles.td}>
-                      {jurisdiction.jurisdictionName || "Unknown"}
+                      {jurisdiction.name}
                     </td>
                     <td className={styles.td}>
                       {jurisdiction.state || "—"}
                     </td>
                     <td className={`${styles.td} ${styles.tdRight}`}>
-                      {formatNumber(jurisdiction.supporterCount)}
+                      {formatNumber(jurisdiction.count)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {data.upcomingElections.length > 0 && (
-            <div className={styles.upcomingSection}>
-              <h3 className={styles.upcomingTitle}>Upcoming Elections</h3>
-              <div className={styles.upcomingList}>
-                {data.upcomingElections.map((election) => (
-                  <div key={election.electionId} className={styles.upcomingItem}>
-                    <div className={styles.upcomingHeader}>
-                      <span className={styles.upcomingName}>
-                        {election.electionName || "Unknown Election"}
-                      </span>
-                      <span className={styles.upcomingCount}>
-                        {formatNumber(election.totalSupporters)} supporters
-                      </span>
-                    </div>
-                    {election.pollDate && (
-                      <div className={styles.upcomingDate}>
-                        {formatDate(election.pollDate)}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </>
       ) : (
         <div className={styles.emptyState}>

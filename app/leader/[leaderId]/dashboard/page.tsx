@@ -11,6 +11,7 @@ import type {
   NetworkReachResult,
 } from "@/lib/queries/types";
 import { SwayScoreCard } from "@/components/cards/SwayScoreCard";
+import { UpcomingElectionsCard } from "@/components/cards/UpcomingElectionsCard";
 import { GrowthOverTimeChart } from "@/components/charts/GrowthOverTimeChart";
 import { ElectoralInfluenceTable } from "@/components/tables/ElectoralInfluenceTable";
 import { NetworkReachTable } from "@/components/tables/NetworkReachTable";
@@ -97,6 +98,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
         {/* Metrics Grid */}
         <section className={styles.metricsGrid}>
+          <UpcomingElectionsCard data={electoralInfluence} />
           <GrowthOverTimeChart data={growthOverTime} />
           <ElectoralInfluenceTable data={electoralInfluence} />
           <NetworkReachTable data={networkReach} />

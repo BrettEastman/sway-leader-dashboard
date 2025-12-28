@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { getAllViewpointGroups } from "@/lib/queries/viewpoint-groups";
+import { LeaderCard } from "@/components/LeaderCard";
 import styles from "./page.module.css";
 
 export default async function Home() {
@@ -17,14 +17,7 @@ export default async function Home() {
           {viewpointGroups.length > 0 ? (
             <div className={styles.leadersList}>
               {viewpointGroups.map((group) => (
-                <Link
-                  key={group.id}
-                  href={`/leader/${group.id}/dashboard`}
-                  className={styles.leaderCard}
-                >
-                  <h2 className={styles.leaderTitle}>{group.title}</h2>
-                  <span className={styles.leaderArrow}>→</span>
-                </Link>
+                <LeaderCard key={group.id} id={group.id} title={group.title} />
               ))}
             </div>
           ) : (

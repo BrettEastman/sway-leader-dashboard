@@ -37,44 +37,6 @@
   gap: var(--spacing-md);
 }
 
-.leaderCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-lg);
-  background: var(--card-background);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
-}
-
-.leaderCard:hover {
-  border-color: var(--accent);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.leaderTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.leaderArrow {
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  transition: transform 0.2s ease;
-}
-
-.leaderCard:hover .leaderArrow {
-  transform: translateX(4px);
-  color: var(--accent);
-}
-
 .emptyState {
   text-align: center;
   padding: var(--spacing-2xl);
