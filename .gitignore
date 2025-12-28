@@ -44,3 +44,5 @@ next-env.d.ts
 # data files (will be loaded into Supabase)
 /data/*.json
 !/data/schema.json
+
+.cursor

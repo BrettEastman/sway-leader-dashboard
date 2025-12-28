@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "load-data": "tsx scripts/load-data.ts"
+    "load-data": "tsx scripts/load-data.ts",
+    "test-queries": "tsx scripts/test-queries.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
