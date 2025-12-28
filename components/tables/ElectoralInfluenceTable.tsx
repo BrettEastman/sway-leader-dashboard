@@ -9,7 +9,10 @@ export function ElectoralInfluenceTable({
   data,
 }: ElectoralInfluenceTableProps) {
   // Aggregate jurisdictions by name + state to combine duplicates
-  const jurisdictionMap = new Map<string, { name: string; state: string | null; count: number }>();
+  const jurisdictionMap = new Map<
+    string,
+    { name: string; state: string | null; count: number }
+  >();
 
   data.byJurisdiction.forEach((jurisdiction) => {
     const name = jurisdiction.jurisdictionName || "Unknown";
@@ -30,8 +33,9 @@ export function ElectoralInfluenceTable({
   });
 
   // Convert map to array and sort by supporter count (descending)
-  const sortedJurisdictions = Array.from(jurisdictionMap.values())
-    .sort((a, b) => b.count - a.count);
+  const sortedJurisdictions = Array.from(jurisdictionMap.values()).sort(
+    (a, b) => b.count - a.count
+  );
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat("en-US").format(num);
@@ -59,13 +63,12 @@ export function ElectoralInfluenceTable({
               </thead>
               <tbody>
                 {sortedJurisdictions.map((jurisdiction, index) => (
-                  <tr key={`${jurisdiction.name}-${jurisdiction.state}-${index}`} className={styles.tr}>
-                    <td className={styles.td}>
-                      {jurisdiction.name}
-                    </td>
-                    <td className={styles.td}>
-                      {jurisdiction.state || "—"}
-                    </td>
+                  <tr
+                    key={`${jurisdiction.name}-${jurisdiction.state}-${index}`}
+                    className={styles.tr}
+                  >
+                    <td className={styles.td}>{jurisdiction.name}</td>
+                    <td className={styles.td}>{jurisdiction.state || "—"}</td>
                     <td className={`${styles.td} ${styles.tdRight}`}>
                       {formatNumber(jurisdiction.count)}
                     </td>
@@ -83,4 +86,3 @@ export function ElectoralInfluenceTable({
     </div>
   );
 }
-
