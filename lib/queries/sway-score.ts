@@ -15,7 +15,7 @@ export async function getSwayScore(
     // Input validation
     if (!viewpointGroupId || typeof viewpointGroupId !== 'string') {
       console.error('Invalid viewpointGroupId provided to getSwayScore');
-      return { count: 0 };
+      return { count: 0, totalSupporters: 0 };
     }
 
     const supabase = createAdminClient();
@@ -29,18 +29,19 @@ export async function getSwayScore(
 
     if (relsError) {
       console.error('Error fetching supporter relationships:', relsError);
-      return { count: 0 };
+      return { count: 0, totalSupporters: 0 };
     }
 
     if (!supporterRels || supporterRels.length === 0) {
-      return { count: 0 };
+      return { count: 0, totalSupporters: 0 };
     }
 
+    const totalSupporters = supporterRels.length;
     const profileIds = supporterRels.map((rel) => rel.profile_id);
 
     // Guard: Don't call .in() with empty array
     if (profileIds.length === 0) {
-      return { count: 0 };
+      return { count: 0, totalSupporters };
     }
 
     // Step 2: Get person IDs for these profiles
@@ -69,11 +70,11 @@ export async function getSwayScore(
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError);
-      return { count: 0 };
+      return { count: 0, totalSupporters };
     }
 
     if (!profiles || profiles.length === 0) {
-      return { count: 0 };
+      return { count: 0, totalSupporters };
     }
 
     const personIds = profiles
@@ -81,7 +82,7 @@ export async function getSwayScore(
       .filter((id): id is string => id !== null);
 
     if (personIds.length === 0) {
-      return { count: 0 };
+      return { count: 0, totalSupporters };
     }
 
     // Step 3: Count distinct verified voters (also batched)
@@ -108,13 +109,13 @@ export async function getSwayScore(
 
     if (vvError) {
       console.error('Error counting verified voters:', vvError);
-      return { count: 0 };
+      return { count: 0, totalSupporters };
     }
 
-    return { count: count || 0 };
+    return { count: count || 0, totalSupporters };
   } catch (error) {
     console.error('Unexpected error in getSwayScore:', error);
-    return { count: 0 };
+    return { count: 0, totalSupporters: 0 };
   }
 }
 

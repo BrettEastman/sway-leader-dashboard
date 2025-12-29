@@ -88,20 +88,30 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       </header>
 
       <main className={styles.main}>
-        {/* Hero Metric - Sway Score */}
-        <section className={styles.heroSection}>
-          <SwayScoreCard
-            swayScore={swayScore}
-            growthOverTime={growthOverTime}
-          />
+        {/* Metrics Grid - 2x2 Layout */}
+        <section className={styles.metricsGrid}>
+          <div className={styles.metricItem}>
+            <SwayScoreCard
+              swayScore={swayScore}
+              growthOverTime={growthOverTime}
+            />
+          </div>
+          <div className={styles.metricItem}>
+            <GrowthOverTimeChart data={growthOverTime} />
+          </div>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <UpcomingElectionsCard data={electoralInfluence} />
+          </div>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <ElectoralInfluenceTable data={electoralInfluence} />
+          </div>
         </section>
 
-        {/* Metrics Grid */}
-        <section className={styles.metricsGrid}>
-          <UpcomingElectionsCard data={electoralInfluence} />
-          <GrowthOverTimeChart data={growthOverTime} />
-          <ElectoralInfluenceTable data={electoralInfluence} />
-          <NetworkReachTable data={networkReach} />
+        {/* Network Reach - Full Width Below Grid */}
+        <section className={styles.networkReachSection}>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <NetworkReachTable data={networkReach} />
+          </div>
         </section>
       </main>
     </div>

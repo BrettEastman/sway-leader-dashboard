@@ -31,14 +31,29 @@
   gap: var(--spacing-2xl);
 }
 
-.heroSection {
-  width: 100%;
-}
-
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-xl);
+}
+
+.metricItem {
+  max-height: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metricItem.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.metricItem.scrollable > * {
+  height: 100%;
+}
+
+.networkReachSection {
+  width: 100%;
 }
 
 .errorContainer {

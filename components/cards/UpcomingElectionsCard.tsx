@@ -41,7 +41,9 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Upcoming Elections</h2>
-        <p className={styles.subtitle}>Where influence can be exercised soon</p>
+        <p className={styles.subtitle}>
+          Voters supporting this group who can influence other elections
+        </p>
       </div>
       <div className={styles.electionsList}>
         {data.upcomingElections.map((election) => (
@@ -65,4 +67,3 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
     </div>
   );
 }
-

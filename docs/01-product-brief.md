@@ -38,10 +38,10 @@ The core insight is that understanding _where_ influence exists is as important 
 
 ---
 
-### 2. Electoral Influence by Race / Jurisdiction
+### 2. Electoral Influence by Upcoming Elections or by Jurisdiction
 
-**Definition:** Supporter counts grouped by race or jurisdiction, contextualized by election scope.
-**Why it matters:** Influence is situational — the same number of voters can be decisive in one race and negligible in another.
+**Definition:** Supporter counts grouped by upcoming elections or by jurisdiction, contextualized by where influence can be exercised soon.
+**Why it matters:** Influence is situational — the same number of voters can be decisive in one election and negligible in another.
 
 This metric captures both _where_ influence exists and _how meaningful_ it may be, without attempting precise outcome prediction.
 
@@ -73,7 +73,7 @@ This metric captures both _where_ influence exists and _how meaningful_ it may b
 
 ### Electoral Influence Breakdown
 
-- Grouped by race and jurisdiction
+- Grouped by electoral race and jurisdiction
   **Insight:** “Where does my influence actually matter?”
   **Action:** Focus attention on elections where supporter density is most meaningful.
 

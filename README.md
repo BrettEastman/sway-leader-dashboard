@@ -27,25 +27,33 @@ Each metric is designed to lead directly to insight and action.
 
 ### 1. Sway Score
 
-Total number of verified voters aligned with the leader. This is the core currency of influence.
+**Description:** The total count of verified voters who are aligned with the leader. This metric represents the leader's core influence base—real, verified individuals who can be mobilized for electoral action. Unlike raw follower counts, this focuses on credible political leverage.
+
+**Summary:** Total number of verified voters aligned with the leader. This is the core currency of influence.
 
 ---
 
 ### 2. Electoral Influence by Race / Jurisdiction
 
-Supporter counts grouped by race or jurisdiction, providing context for where influence may be meaningful. This metric captures situational leverage without attempting precise outcome prediction.
+**Description:** A geographic and electoral breakdown showing where the leader's supporters are located and which specific races or jurisdictions they can impact. This metric helps identify where influence is concentrated and which upcoming elections are most relevant, enabling strategic prioritization of mobilization efforts.
+
+**Summary:** Supporter counts grouped by electoral race or jurisdiction, providing context for where influence may be meaningful. This metric captures situational leverage without attempting precise outcome prediction.
 
 ---
 
 ### 3. Growth Over Time
 
-Change in Sway Score over time, indicating momentum or stagnation.
+**Description:** A time series visualization tracking changes in the Sway Score over time. This metric reveals growth trends, momentum patterns, and whether the leader's influence base is expanding, stable, or declining. It helps identify effective recruitment periods and assess the health of the movement.
+
+**Summary:** Change in Sway Score over time, indicating momentum or stagnation.
 
 ---
 
 ### 4. Network Reach
 
-Supporters who have become leaders themselves, representing downstream amplification of influence.
+**Description:** Identifies supporters who have become leaders themselves, creating a network effect that amplifies influence beyond direct connections. This metric measures downstream reach—the total verified voters aligned with network leaders—showing how influence propagates through the supporter base and highlighting key amplification nodes.
+
+**Summary:** Supporters who have become leaders themselves, representing downstream amplification of influence.
 
 ---
 
@@ -58,21 +66,7 @@ Supporters who have become leaders themselves, representing downstream amplifica
 - **Recharts** (charts)
 - **Deployed on Vercel**
 
-All data is modeled and queried from a real relational database. Metrics are computed server-side.
-
----
-
-## Data Modeling Approach
-
-The dataset represents a complex political graph: supporters, jurisdictions, elections, and ballot items.
-
-For this MVP:
-
-- Core relational tables are preserved
-- Metrics are computed via SQL joins
-- Clarity and extensibility are prioritized over premature optimization
-
-At larger scales, this approach would evolve toward aggregation and background computation.
+All data is modeled and queried from a Supabase relational database. Metrics are computed server-side.
 
 ---
 
@@ -83,18 +77,33 @@ At larger scales, this approach would evolve toward aggregation and background c
 - No real-time updates
 - No geographic map visualizations
 
-These decisions keep the scope appropriate for a 4–8 hour prototype.
+These decisions keep the scope appropriate for a quickly built prototype.
 
 ---
 
 ## What Would Change at Scale
 
-At 100k+ supporters or leaders:
+At 100k+ supporters or leaders, several architectural changes would become necessary:
 
-- Metrics would be pre-aggregated
-- Influence modeling would incorporate turnout and historical margins
-- Cross-leader benchmarking would unlock new insights
-- Caching and background jobs would become necessary
+### Performance Optimizations
+
+- **Background computation:** Long-running metrics (like network reach with nested database queries) would be computed in scheduled background jobs (e.g., Supabase Edge Functions) rather than on every dashboard request
+- **Result storage:** Pre-computed metrics would be stored in materialized views or cache tables with appropriate refresh intervals, allowing instant dashboard loads
+
+### Enhanced Modeling
+
+- **Influence modeling:** Would incorporate historical election turnout rates and margin data to provide more nuanced leverage predictions
+- **Real-time updates:** WebSocket subscriptions or server-sent events would replace the current read-only approach
+
+### Infrastructure
+
+- **Database scaling:** Read replicas for analytics queries, connection pooling, and query optimization
+- **Monitoring and alerting:** Comprehensive observability for query performance and system health
+
+### New Capabilities
+
+- **Cross-leader benchmarking:** Comparative analytics showing how one leader's metrics compare to others in similar contexts
+- **Geographic visualizations:** Interactive maps showing influence concentration (currently simplified to jurisdiction lists)
 
 ---
 
@@ -181,6 +190,16 @@ This script will:
 - Report any errors
 
 **Note:** Make sure your `.env.local` file is configured before running this script.
+
+### 7. (Optional) Test Queries
+
+To verify your setup and test the query functions, you can run:
+
+```bash
+npm run test-queries
+```
+
+This script will test all four core metrics with a sample leader ID and display the results in your terminal. Useful for debugging and verifying data loading.
 
 ---
 

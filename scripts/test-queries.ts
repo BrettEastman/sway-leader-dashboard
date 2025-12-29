@@ -1,3 +1,15 @@
+/**
+ * Test Queries Script
+ *
+ * This script is a development tool for testing all query functions.
+ * It can be run via: npm run test-queries
+ *
+ * Useful for:
+ * - Debugging query issues
+ * - Verifying data loading
+ * - Testing query performance
+ */
+
 import * as dotenv from "dotenv";
 import * as path from "path";
 import {
@@ -53,13 +65,17 @@ async function testQueries() {
     if (electoralInfluence.byJurisdiction.length > 0) {
       const top = electoralInfluence.byJurisdiction[0];
       console.log(
-        `      - Top Jurisdiction: ${top.jurisdictionName || "Unknown"} (${top.supporterCount} supporters)`
+        `      - Top Jurisdiction: ${top.jurisdictionName || "Unknown"} (${
+          top.supporterCount
+        } supporters)`
       );
     }
     if (electoralInfluence.byRace.length > 0) {
       const topRace = electoralInfluence.byRace[0];
       console.log(
-        `      - Top Race: ${topRace.raceName || "Unknown"} (${topRace.supporterCount} supporters)`
+        `      - Top Race: ${topRace.raceName || "Unknown"} (${
+          topRace.supporterCount
+        } supporters)`
       );
     }
     console.log();
@@ -101,7 +117,9 @@ async function testQueries() {
     if (networkReach.networkLeaders.length > 0) {
       const topLeader = networkReach.networkLeaders[0];
       console.log(
-        `      - Top Network Leader: ${topLeader.displayName || "Unknown"} (${topLeader.downstreamVerifiedVoters} downstream voters)`
+        `      - Top Network Leader: ${topLeader.displayName || "Unknown"} (${
+          topLeader.downstreamVerifiedVoters
+        } downstream voters)`
       );
     }
     console.log();
@@ -118,4 +136,3 @@ async function testQueries() {
 }
 
 testQueries();
-

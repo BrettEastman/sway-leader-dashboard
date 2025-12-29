@@ -41,10 +41,6 @@ export async function getNetworkReach(
     }
 
     const supporterProfileIds = supporterRels.map((rel) => rel.profile_id);
-    const uniqueSupporterCount = [...new Set(supporterProfileIds)].length;
-    console.log(
-      `[getNetworkReach] Found ${uniqueSupporterCount} unique supporters of viewpoint group ${viewpointGroupId}`
-    );
 
     // Step 2: Find which of these supporters are also leaders in other viewpoint groups (batched)
     const allLeaderRels: Array<{
@@ -78,9 +74,6 @@ export async function getNetworkReach(
     }
 
     const leaderRels = allLeaderRels;
-    const uniqueNetworkLeaderCount = leaderRels.length
-      ? [...new Set(leaderRels.map((r) => r.profile_id))].length
-      : 0;
 
     if (leaderError) {
       console.error("Error fetching leader relationships:", leaderError);
@@ -91,18 +84,11 @@ export async function getNetworkReach(
     }
 
     if (!leaderRels || leaderRels.length === 0) {
-      console.log(
-        `[getNetworkReach] No network leaders found. None of the ${uniqueSupporterCount} supporters are leaders in OTHER viewpoint groups.`
-      );
       return {
         networkLeaders: [],
         totalDownstreamReach: 0,
       };
     }
-
-    console.log(
-      `[getNetworkReach] Found ${uniqueNetworkLeaderCount} network leaders (supporters who are also leaders in other viewpoint groups)`
-    );
 
     // Step 3: Get profile and viewpoint group details for network leaders
     const networkLeaderProfileIds = [

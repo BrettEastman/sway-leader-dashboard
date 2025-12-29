@@ -45,7 +45,9 @@ export function ElectoralInfluenceTable({
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Electoral Influence</h2>
-        <p className={styles.subtitle}>Supporters by jurisdiction</p>
+        <p className={styles.subtitle}>
+          Voters supporting this group, arranged by jurisdiction
+        </p>
       </div>
 
       {sortedJurisdictions.length > 0 ? (
