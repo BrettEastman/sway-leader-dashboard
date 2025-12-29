@@ -14,6 +14,7 @@ import { SwayScoreCard } from "@/components/cards/SwayScoreCard";
 import { UpcomingElectionsCard } from "@/components/cards/UpcomingElectionsCard";
 import { GrowthOverTimeChart } from "@/components/charts/GrowthOverTimeChart";
 import { ElectoralInfluenceTable } from "@/components/tables/ElectoralInfluenceTable";
+import { NetworkReachTable } from "@/components/tables/NetworkReachTable";
 import styles from "./page.module.css";
 
 interface DashboardPageProps {
@@ -103,6 +104,13 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           </div>
           <div className={`${styles.metricItem} ${styles.scrollable}`}>
             <ElectoralInfluenceTable data={electoralInfluence} />
+          </div>
+        </section>
+
+        {/* Network Reach - Full Width Below Grid */}
+        <section className={styles.networkReachSection}>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <NetworkReachTable data={networkReach} />
           </div>
         </section>
       </main>
