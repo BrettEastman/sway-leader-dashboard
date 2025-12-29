@@ -39,7 +39,7 @@ export function GrowthOverTimeChart({ data }: GrowthOverTimeChartProps) {
         </div>
       ) : (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
               margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
