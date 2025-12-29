@@ -12,6 +12,16 @@
   border-bottom: 2px solid var(--card-border);
 }
 
+.titleLink {
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s ease;
+}
+
+.titleLink:hover {
+  opacity: 0.7;
+}
+
 .title {
   font-size: 2.5rem;
   font-weight: 700;
