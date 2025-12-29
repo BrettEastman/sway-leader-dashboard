@@ -68,6 +68,12 @@
   font-weight: 600;
 }
 
+.trendLabel {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
 .trendPercentage {
   color: var(--text-secondary);
   font-size: 0.875rem;

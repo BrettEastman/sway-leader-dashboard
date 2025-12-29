@@ -13,15 +13,52 @@ export function SwayScoreCard({
   swayScore,
   growthOverTime,
 }: SwayScoreCardProps) {
-  const hasGrowth = growthOverTime.totalGrowth !== 0;
   const totalSupporters = swayScore.totalSupporters ?? 0;
 
-  // Use the growthRate from growthOverTime if available, otherwise calculate it
-  // Only show percentage if it's reasonable (less than 1000% to avoid confusing large numbers)
-  const growthPercentage =
-    growthOverTime.growthRate !== undefined &&
-    Math.abs(growthOverTime.growthRate) < 1000
-      ? Math.abs(growthOverTime.growthRate).toFixed(1)
+  // Calculate growth from one week before the last data point
+  let weekAgoCount = 0;
+  let weekOverWeekChange = 0;
+  let hasGrowth = false;
+
+  if (growthOverTime.dataPoints.length > 0) {
+    // Get the last data point (most recent date in the time series)
+    const sortedDataPoints = [...growthOverTime.dataPoints].sort((a, b) =>
+      b.date.localeCompare(a.date)
+    );
+    const lastDataPoint = sortedDataPoints[0];
+    const lastDate = new Date(lastDataPoint.date);
+
+    // Calculate one week before the last data point
+    const oneWeekBeforeLast = new Date(lastDate);
+    oneWeekBeforeLast.setDate(oneWeekBeforeLast.getDate() - 7);
+    const oneWeekBeforeLastDateStr = oneWeekBeforeLast
+      .toISOString()
+      .split("T")[0];
+
+    // Find the data point closest to one week before the last data point
+    // (or the most recent one before that date)
+    const weekAgoDataPoint = growthOverTime.dataPoints
+      .filter((dp) => dp.date <= oneWeekBeforeLastDateStr)
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+
+    if (weekAgoDataPoint) {
+      weekAgoCount = weekAgoDataPoint.cumulativeCount;
+      weekOverWeekChange = swayScore.count - weekAgoCount;
+      hasGrowth = weekOverWeekChange !== 0;
+    } else if (growthOverTime.dataPoints.length > 1) {
+      // If we can't find a point one week back, use the first data point as fallback
+      const firstDataPoint = sortedDataPoints[sortedDataPoints.length - 1];
+      weekAgoCount = firstDataPoint.cumulativeCount;
+      weekOverWeekChange = swayScore.count - weekAgoCount;
+      hasGrowth = weekOverWeekChange !== 0;
+    }
+  }
+
+  // Calculate percentage change (only show if reasonable and we have a baseline)
+  const weekOverWeekPercentage =
+    weekAgoCount > 0 &&
+    Math.abs((weekOverWeekChange / weekAgoCount) * 100) < 1000
+      ? Math.abs((weekOverWeekChange / weekAgoCount) * 100).toFixed(1)
       : null;
 
   const formatNumber = (num: number): string => {
@@ -44,19 +81,20 @@ export function SwayScoreCard({
         {hasGrowth && (
           <div
             className={`${styles.trend} ${
-              growthOverTime.totalGrowth > 0 ? styles.trendUp : styles.trendDown
+              weekOverWeekChange > 0 ? styles.trendUp : styles.trendDown
             }`}
           >
             <span className={styles.trendArrow}>
-              {growthOverTime.totalGrowth > 0 ? "↑" : "↓"}
+              {weekOverWeekChange > 0 ? "↑" : "↓"}
             </span>
             <span className={styles.trendValue}>
-              {growthOverTime.totalGrowth > 0 ? "+" : ""}
-              {formatNumber(Math.abs(growthOverTime.totalGrowth))}
+              {weekOverWeekChange > 0 ? "+" : ""}
+              {formatNumber(Math.abs(weekOverWeekChange))}
             </span>
-            {growthPercentage && (
+            <span className={styles.trendLabel}> from last week</span>
+            {weekOverWeekPercentage && (
               <span className={styles.trendPercentage}>
-                ({growthPercentage}% increase)
+                ({weekOverWeekPercentage}% increase)
               </span>
             )}
           </div>
