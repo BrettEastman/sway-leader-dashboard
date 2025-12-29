@@ -94,7 +94,7 @@ export async function getElectoralInfluence(
       };
     }
 
-    // Step 3: Get verified voters (batched)
+    // Step 3: Get verified voters (batched) (where is_fully_verified = true)
     const allVoterVerifications: Array<{ id: string; person_id: string }> = [];
     let vvError: {
       message: string;
@@ -134,7 +134,7 @@ export async function getElectoralInfluence(
 
     const voterVerificationIds = voterVerifications.map((vv) => vv.id);
 
-    // Step 4: Get jurisdiction relationships (batched)
+    // Step 4: Get jurisdiction relationships (batched). Find the jurisdictions where they're registered to vote (via voter_verification_jurisdiction_rels).
     const allJurisdictionRels: Array<{
       voter_verification_id: string;
       jurisdiction_id: string;

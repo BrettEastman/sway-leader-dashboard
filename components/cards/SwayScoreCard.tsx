@@ -1,4 +1,7 @@
-import type { SwayScoreResult, GrowthOverTimeResult } from "@/lib/queries/types";
+import type {
+  SwayScoreResult,
+  GrowthOverTimeResult,
+} from "@/lib/queries/types";
 import styles from "./SwayScoreCard.module.css";
 
 interface SwayScoreCardProps {
@@ -11,9 +14,14 @@ export function SwayScoreCard({
   growthOverTime,
 }: SwayScoreCardProps) {
   const hasGrowth = growthOverTime.totalGrowth !== 0;
+  const totalSupporters = swayScore.totalSupporters ?? 0;
+
+  // Use the growthRate from growthOverTime if available, otherwise calculate it
+  // Only show percentage if it's reasonable (less than 1000% to avoid confusing large numbers)
   const growthPercentage =
-    growthOverTime.totalGrowth > 0 && swayScore.count > growthOverTime.totalGrowth
-      ? ((growthOverTime.totalGrowth / (swayScore.count - growthOverTime.totalGrowth)) * 100).toFixed(1)
+    growthOverTime.growthRate !== undefined &&
+    Math.abs(growthOverTime.growthRate) < 1000
+      ? Math.abs(growthOverTime.growthRate).toFixed(1)
       : null;
 
   const formatNumber = (num: number): string => {
@@ -28,6 +36,11 @@ export function SwayScoreCard({
       </div>
       <div className={styles.content}>
         <div className={styles.score}>{formatNumber(swayScore.count)}</div>
+        {totalSupporters > 0 && (
+          <div className={styles.totalSupporters}>
+            out of {formatNumber(totalSupporters)} total supporters
+          </div>
+        )}
         {hasGrowth && (
           <div
             className={`${styles.trend} ${
@@ -43,7 +56,7 @@ export function SwayScoreCard({
             </span>
             {growthPercentage && (
               <span className={styles.trendPercentage}>
-                ({growthPercentage}%)
+                ({growthPercentage}% increase)
               </span>
             )}
           </div>
@@ -52,4 +65,3 @@ export function SwayScoreCard({
     </div>
   );
 }
-

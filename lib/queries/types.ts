@@ -1,7 +1,8 @@
 // TypeScript interfaces for query result types
 
 export interface SwayScoreResult {
-  count: number;
+  count: number; // Verified voters
+  totalSupporters?: number; // Total supporters (including non-verified)
 }
 
 export interface ElectoralInfluenceByJurisdiction {

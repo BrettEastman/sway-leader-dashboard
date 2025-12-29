@@ -38,6 +38,12 @@
   line-height: 1;
 }
 
+.totalSupporters {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
 .trend {
   display: flex;
   align-items: center;

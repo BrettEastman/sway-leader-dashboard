@@ -20,7 +20,7 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
       <div className={styles.header}>
         <h2 className={styles.title}>Network Reach</h2>
         <p className={styles.subtitle}>
-          Supporters who became leaders themselves
+          Voters supporting this group who became leaders themselves
         </p>
       </div>
 
@@ -70,4 +70,3 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
     </div>
   );
 }
-
