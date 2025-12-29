@@ -26,5 +26,3 @@ This is an MVP intended to surface insight, not to operationalize mobilization. 
 - Heavy relational joins without pre-aggregation
 - Recomputing metrics on every request
 - Single-tenant assumptions
-
-These issues are acknowledged and addressed in the Future Evolution section of the README.
