@@ -1,10 +1,12 @@
-# Leader Influence Dashboard (Sway Take-Home)
+# Leader Influence Dashboard
 
 ## Overview
 
-This project is a prototype **Leader Influence Dashboard** for Sway. It translates raw political support data into actionable insights that help leaders understand **how much influence they have, where it is located, how it is changing, and how it propagates through their network**.
+This project is a prototype **Leader Influence Dashboard** take home project for [Sway.co](https://www.sway.co/). It translates raw political support data into actionable insights that help leaders understand **how much influence they have, where it is located, how it is changing, and how it propagates through their network**.
 
 The dashboard focuses on credible political influence: verified voters, electoral concentration, and real-world relevance.
+
+View the deployed application [here!](https://sway-leader-dashboard.vercel.app/)
 
 ---
 
@@ -174,7 +176,7 @@ From your Supabase project dashboard:
 5. Paste into the SQL Editor
 6. Click **Run** to create all tables
 
-### 6. Load Data
+### 6. Load Data (\*Note: this data is provided by the folks at Sway in the form of json files you can put in the `data/` directory)
 
 After the migration succeeds, load the JSON data into Supabase:
 
