@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Sway Leader Dashboard",
   description:
     "Dashboard for Sway leaders to help them understand their political influence and discover where to grow it next.",
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

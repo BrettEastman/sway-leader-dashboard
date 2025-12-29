@@ -28,6 +28,7 @@
 .chartContainer {
   width: 100%;
   height: 300px;
+  flex-shrink: 0;
 }
 
 .emptyState {
@@ -45,6 +46,8 @@
   }
 
   .chartContainer {
-    height: 250px;
+    height: 100%;
+    flex: 1;
+    min-height: 0;
   }
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   getSwayScore,
   getElectoralInfluence,
@@ -83,7 +84,9 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Leader Dashboard</h1>
+        <Link href="/" className={styles.titleLink}>
+          <h1 className={styles.title}>Leader Dashboard</h1>
+        </Link>
         <p className={styles.subtitle}>Influence metrics and insights</p>
       </header>
 

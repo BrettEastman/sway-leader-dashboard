@@ -34,6 +34,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .th {
@@ -47,8 +48,24 @@
   letter-spacing: 0.05em;
 }
 
+.th:nth-child(1) {
+  /* Jurisdiction column - takes remaining space */
+  min-width: 0;
+}
+
+.th:nth-child(2) {
+  /* State column - narrow, only needs 2 letters */
+  width: 1%;
+  white-space: nowrap;
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
+}
+
 .thRight {
   text-align: right;
+  width: 1%;
+  white-space: nowrap;
+  padding-left: var(--spacing-sm);
 }
 
 .tr {
@@ -65,10 +82,17 @@
   font-size: 0.9375rem;
 }
 
+.td:nth-child(2) {
+  /* State column - narrow padding */
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
+}
+
 .tdRight {
   text-align: right;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
+  padding-left: var(--spacing-sm);
 }
 
 .emptyState {
