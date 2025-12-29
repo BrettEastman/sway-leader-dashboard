@@ -9,9 +9,9 @@ export default async function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.container}>
-          <h1 className={styles.title}>Leader Influence Dashboard</h1>
+          <h1 className={styles.title}>Sway Voting Groups</h1>
           <p className={styles.subtitle}>
-            Select a leader to view their influence metrics
+            Select a voting group to view their influence metrics
           </p>
 
           {viewpointGroups.length > 0 ? (

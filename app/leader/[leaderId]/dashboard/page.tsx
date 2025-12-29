@@ -14,7 +14,6 @@ import { SwayScoreCard } from "@/components/cards/SwayScoreCard";
 import { UpcomingElectionsCard } from "@/components/cards/UpcomingElectionsCard";
 import { GrowthOverTimeChart } from "@/components/charts/GrowthOverTimeChart";
 import { ElectoralInfluenceTable } from "@/components/tables/ElectoralInfluenceTable";
-import { NetworkReachTable } from "@/components/tables/NetworkReachTable";
 import styles from "./page.module.css";
 
 interface DashboardPageProps {
@@ -88,20 +87,23 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       </header>
 
       <main className={styles.main}>
-        {/* Hero Metric - Sway Score */}
-        <section className={styles.heroSection}>
-          <SwayScoreCard
-            swayScore={swayScore}
-            growthOverTime={growthOverTime}
-          />
-        </section>
-
-        {/* Metrics Grid */}
+        {/* Metrics Grid - 2x2 Layout */}
         <section className={styles.metricsGrid}>
-          <UpcomingElectionsCard data={electoralInfluence} />
-          <GrowthOverTimeChart data={growthOverTime} />
-          <ElectoralInfluenceTable data={electoralInfluence} />
-          <NetworkReachTable data={networkReach} />
+          <div className={styles.metricItem}>
+            <SwayScoreCard
+              swayScore={swayScore}
+              growthOverTime={growthOverTime}
+            />
+          </div>
+          <div className={styles.metricItem}>
+            <GrowthOverTimeChart data={growthOverTime} />
+          </div>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <UpcomingElectionsCard data={electoralInfluence} />
+          </div>
+          <div className={`${styles.metricItem} ${styles.scrollable}`}>
+            <ElectoralInfluenceTable data={electoralInfluence} />
+          </div>
         </section>
       </main>
     </div>

@@ -40,43 +40,48 @@ export function GrowthOverTimeChart({ data }: GrowthOverTimeChartProps) {
       ) : (
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-          <XAxis
-            dataKey="date"
-            stroke="var(--text-secondary)"
-            style={{ fontSize: "0.75rem" }}
-          />
-          <YAxis
-            stroke="var(--text-secondary)"
-            style={{ fontSize: "0.75rem" }}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "var(--card-background)",
-              border: "1px solid var(--card-border)",
-              borderRadius: "var(--radius-md)",
-              color: "var(--text-primary)",
-            }}
-            labelStyle={{ color: "var(--text-primary)" }}
-            formatter={(value: number) => [
-              new Intl.NumberFormat("en-US").format(value),
-              "Verified Voters",
-            ]}
-          />
-          <Line
-            type="monotone"
-            dataKey="count"
-            stroke="var(--accent)"
-            strokeWidth={2}
-            dot={{ fill: "var(--accent)", r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-        </LineChart>
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--card-border)"
+              />
+              <XAxis
+                dataKey="date"
+                stroke="var(--text-secondary)"
+                style={{ fontSize: "0.75rem" }}
+              />
+              <YAxis
+                stroke="var(--text-secondary)"
+                style={{ fontSize: "0.75rem" }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card-background)",
+                  border: "1px solid var(--card-border)",
+                  borderRadius: "var(--radius-md)",
+                  color: "var(--text-primary)",
+                }}
+                labelStyle={{ color: "var(--text-primary)" }}
+                formatter={(value: number) => [
+                  new Intl.NumberFormat("en-US").format(value),
+                  "Verified Voters",
+                ]}
+              />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                dot={{ fill: "var(--accent)", r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       )}
     </div>
   );
 }
-
