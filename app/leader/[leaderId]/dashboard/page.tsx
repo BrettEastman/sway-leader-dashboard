@@ -1,21 +1,21 @@
-import Link from "next/link";
-import {
-  getSwayScore,
-  getElectoralInfluence,
-  getGrowthOverTime,
-  getNetworkReach,
-} from "@/lib/queries";
-import type {
-  SwayScoreResult,
-  ElectoralInfluenceResult,
-  GrowthOverTimeResult,
-  NetworkReachResult,
-} from "@/lib/queries/types";
 import { SwayScoreCard } from "@/components/cards/SwayScoreCard";
 import { UpcomingElectionsCard } from "@/components/cards/UpcomingElectionsCard";
 import { GrowthOverTimeChart } from "@/components/charts/GrowthOverTimeChart";
 import { ElectoralInfluenceTable } from "@/components/tables/ElectoralInfluenceTable";
 import { NetworkReachTable } from "@/components/tables/NetworkReachTable";
+import {
+  getElectoralInfluence,
+  getGrowthOverTime,
+  getNetworkReach,
+  getSwayScore,
+} from "@/lib/queries";
+import type {
+  ElectoralInfluenceResult,
+  GrowthOverTimeResult,
+  NetworkReachResult,
+  SwayScoreResult,
+} from "@/lib/queries/types";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 interface DashboardPageProps {

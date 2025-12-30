@@ -1,5 +1,5 @@
-import { getAllViewpointGroups } from "@/lib/queries/viewpoint-groups";
 import { LeaderCard } from "@/components/LeaderCard";
+import { getAllViewpointGroups } from "@/lib/queries/viewpoint-groups";
 import styles from "./page.module.css";
 
 export default async function Home() {

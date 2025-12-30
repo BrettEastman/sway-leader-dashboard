@@ -1,15 +1,15 @@
 "use client";
 
+import type { GrowthOverTimeResult } from "@/lib/queries/types";
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import type { GrowthOverTimeResult } from "@/lib/queries/types";
 import styles from "./GrowthOverTimeChart.module.css";
 
 interface GrowthOverTimeChartProps {

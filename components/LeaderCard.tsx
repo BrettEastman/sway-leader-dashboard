@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import styles from "./LeaderCard.module.css";
 
 interface LeaderCardProps {
@@ -54,4 +54,3 @@ export function LeaderCard({ id, title }: LeaderCardProps) {
     </Link>
   );
 }
-
