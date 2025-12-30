@@ -12,7 +12,10 @@ export const metadata: Metadata = {
   description:
     "Dashboard for Sway leaders to help them understand their political influence and discover where to grow it next.",
   icons: {
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
   },
 };
 
