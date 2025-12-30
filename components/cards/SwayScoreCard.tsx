@@ -1,6 +1,6 @@
 import type {
-  SwayScoreResult,
   GrowthOverTimeResult,
+  SwayScoreResult,
 } from "@/lib/queries/types";
 import styles from "./SwayScoreCard.module.css";
 
