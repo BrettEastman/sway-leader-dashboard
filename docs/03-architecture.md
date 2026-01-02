@@ -28,8 +28,9 @@ Rationale:
 ## Data Access
 
 - **Supabase Postgres**: Relational database for all data
-- **Server-side queries**: All metrics computed server-side in Next.js Server Components
-- **Query functions**: Reusable functions in `lib/queries/` that handle SQL joins and aggregations
+- **Server-side queries**: Metrics are triggered from Next.js Server Components.
+- **Optimized RPCs**: Complex metrics use **Supabase RPC functions** to perform multi-stage joins and window functions directly on the database server.
+- **Query functions**: Reusable functions in `lib/queries/` act as a clean interface between the Next.js frontend and the database RPCs.
 - **Type safety**: Shared TypeScript types between queries and components
 - **No static JSON imports**: All data comes from the database at runtime
 
