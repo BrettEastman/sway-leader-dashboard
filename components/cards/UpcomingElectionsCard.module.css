@@ -38,6 +38,7 @@
   background: var(--background);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
+  margin-right: 14px;
 }
 
 .electionHeader {
