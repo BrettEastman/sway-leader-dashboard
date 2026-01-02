@@ -68,7 +68,7 @@ Each metric is designed to lead directly to insight and action.
 - **Recharts** (charts)
 - **Deployed on Vercel**
 
-All data is modeled and queried from a Supabase relational database. Metrics are computed server-side.
+All data is modeled and queried from a Supabase relational database. Complex metrics are computed using **Supabase RPC functions (PostgreSQL)** to ensure high-performance joins and aggregations.
 
 ---
 
@@ -89,7 +89,8 @@ At 100k+ supporters or leaders, several architectural changes would become neces
 
 ### Performance Optimizations
 
-- **Background computation:** Long-running metrics (like network reach with nested database queries) would be computed in scheduled background jobs (e.g., Supabase Edge Functions) rather than on every dashboard request
+- **Materialized Views:** While our RPC functions are currently fast, at massive scale, we would move from "compute-on-request" to pre-aggregating data into Materialized Views or cache tables.
+- **Background computation:** Long-running global analytics would be computed in scheduled background jobs (e.g., Supabase Edge Functions) rather than on every dashboard request
 - **Result storage:** Pre-computed metrics would be stored in materialized views or cache tables with appropriate refresh intervals, allowing instant dashboard loads
 
 ### Enhanced Modeling

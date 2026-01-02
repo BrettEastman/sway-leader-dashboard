@@ -22,6 +22,7 @@ This prototype uses a focused subset of the provided dataset.
 
 - Preserve relational integrity
 - Prefer SQL joins over denormalization
+- **Offload complex logic to Supabase RPCs**: Heavy aggregations (like Network Reach and Growth Over Time) are handled in PostgreSQL to minimize network round-trips and latency.
 - Compute metrics at query time for MVP simplicity
 
-At scale, these metrics would be materialized or pre-aggregated.
+At scale, these metrics would be transitioned from RPCs to materialized or pre-aggregated tables.
