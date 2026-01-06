@@ -47,9 +47,15 @@ This document captures the discovered schema fields from the Sway GraphQL API (`
 ## ViewpointGroupSummaries
 
 ```
-- supporterCount (Int)
-- verifiedSupporterCount (Int)
+- createdAt (NON_NULL)
+- supporterCount (NON_NULL)
+- updatedAt (NON_NULL)
+- verifiedSupporterCount (NON_NULL)
+- viewpointGroup (NON_NULL)
+- viewpointGroupId (NON_NULL)
 ```
+
+**Note:** Only aggregated totals are available. No per-jurisdiction breakdown.
 
 ---
 
@@ -210,9 +216,37 @@ query GetSupportersWithLocation($id: uuid!) {
 
 ---
 
+## Voter Verification Data
+
+The API exposes voter verification data at root level but blocks paths to filter by viewpoint group:
+
+### Available Root Queries
+
+```
+- jurisdictions (NON_NULL)
+- jurisdictionsByPk (OBJECT: Jurisdictions)
+- voterVerificationJurisdictionRels (NON_NULL)
+- voterVerificationJurisdictionRelsAggregate (NON_NULL)
+```
+
+### VoterVerificationJurisdictionRels Fields
+
+```
+- jurisdiction (NON_NULL) ← Only this field is exposed
+```
+
+### Blocked Paths
+
+- `Profiles` → `voterVerifications` - NOT exposed
+- `VoterVerificationJurisdictionRels` → `voterVerification` - NOT filterable
+
+This means you CAN query all voter verification jurisdictions, but you CANNOT filter them by profiles belonging to a specific viewpoint group.
+
+---
+
 ## Limitations
 
-1. **Voter verification data** - Not exposed through Profiles; cannot get precise jurisdiction-level supporter counts
+1. **Jurisdiction-level supporter counts** - The API exposes `verifiedSupporterCount` as a total, but blocks the path to get per-jurisdiction breakdown. The Supabase RPC has access to voter verification tables that the public API intentionally restricts.
 2. **Race/office titles** - `office` field not available on Races type
-3. **Location data** - Profile `location` is free-form string, may require parsing to match with jurisdiction states
-
+3. **Location data** - Profile `location` is free-form string (e.g., "San Francisco, CA", "Florida")
+4. **Supporter count discrepancy** - `summary.supporterCount` (e.g., 734) may be higher than the number of records in `profileViewpointGroupRels` (e.g., 307). This means some supporters exist in Sway's system but their profile data isn't exposed through the relationship query. Only supporters with profile records can have their location data analyzed.

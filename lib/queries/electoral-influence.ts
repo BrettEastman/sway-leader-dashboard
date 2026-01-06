@@ -34,9 +34,87 @@ async function getElectoralInfluenceFromSupabase(
   return data as ElectoralInfluenceResult;
 }
 
+// Helper: Extract state abbreviation from a location string
+function extractState(location: string): string | null {
+  const stateAbbreviations: Record<string, string> = {
+    alabama: "AL",
+    alaska: "AK",
+    arizona: "AZ",
+    arkansas: "AR",
+    california: "CA",
+    colorado: "CO",
+    connecticut: "CT",
+    delaware: "DE",
+    florida: "FL",
+    georgia: "GA",
+    hawaii: "HI",
+    idaho: "ID",
+    illinois: "IL",
+    indiana: "IN",
+    iowa: "IA",
+    kansas: "KS",
+    kentucky: "KY",
+    louisiana: "LA",
+    maine: "ME",
+    maryland: "MD",
+    massachusetts: "MA",
+    michigan: "MI",
+    minnesota: "MN",
+    mississippi: "MS",
+    missouri: "MO",
+    montana: "MT",
+    nebraska: "NE",
+    nevada: "NV",
+    "new hampshire": "NH",
+    "new jersey": "NJ",
+    "new mexico": "NM",
+    "new york": "NY",
+    "north carolina": "NC",
+    "north dakota": "ND",
+    ohio: "OH",
+    oklahoma: "OK",
+    oregon: "OR",
+    pennsylvania: "PA",
+    "rhode island": "RI",
+    "south carolina": "SC",
+    "south dakota": "SD",
+    tennessee: "TN",
+    texas: "TX",
+    utah: "UT",
+    vermont: "VT",
+    virginia: "VA",
+    washington: "WA",
+    "west virginia": "WV",
+    wisconsin: "WI",
+    wyoming: "WY",
+    "district of columbia": "DC",
+  };
+  const validAbbrevs = new Set(Object.values(stateAbbreviations));
+
+  const locationLower = location.toLowerCase().trim();
+
+  // Check if it's a full state name
+  if (stateAbbreviations[locationLower]) {
+    return stateAbbreviations[locationLower];
+  }
+
+  // Try to extract abbreviation from location (e.g., "San Francisco, CA")
+  const parts = location.split(/[,\s]+/);
+  for (const part of parts) {
+    const upper = part.toUpperCase();
+    if (validAbbrevs.has(upper)) {
+      return upper;
+    }
+  }
+
+  return null;
+}
+
 /**
  * Get electoral influence metrics for a leader from the Sway GraphQL API
- * This queries elections and ballot items to build influence data
+ *
+ * Shows: "Your supporters are in these states. Here are the elections they can vote in."
+ * Only returns elections in states where the leader has supporters.
  */
 async function getElectoralInfluenceFromAPI(
   viewpointGroupId: string
@@ -45,19 +123,20 @@ async function getElectoralInfluenceFromAPI(
   const byRace: ElectoralInfluenceByRace[] = [];
   const upcomingElections: UpcomingElection[] = [];
 
-  // First, get supporter data from the viewpoint group
-  const supporterStateCounts = new Map<string, number>();
+  // Step 1: Get supporter locations
+  // - supportersByLocation: actual locations as entered (for byJurisdiction display)
+  // - supportersByState: extracted states (for filtering elections)
+  const supportersByLocation = new Map<string, number>();
+  const supportersByState = new Map<string, number>();
+  let supportersWithoutLocation = 0;
 
   try {
-    // Query supporters with location field (free-form string)
+    // Note: summary.supporterCount (734) may be higher than profileViewpointGroupRels (307)
+    // because some supporters don't have profile data exposed through this API
     const supportersQuery = `
       query GetSupportersWithLocation($id: uuid!) {
         viewpointGroups(where: { id: { _eq: $id } }) {
-          summary {
-            supporterCount
-            verifiedSupporterCount
-          }
-          profileViewpointGroupRels {
+          profileViewpointGroupRels(limit: 10000) {
             profile {
               location
             }
@@ -68,14 +147,8 @@ async function getElectoralInfluenceFromAPI(
 
     const supportersData = await fetchSwayAPI<{
       viewpointGroups: Array<{
-        summary: {
-          supporterCount: number;
-          verifiedSupporterCount: number;
-        } | null;
         profileViewpointGroupRels: Array<{
-          profile: {
-            location?: string | null;
-          } | null;
+          profile: { location?: string | null } | null;
         }>;
       }>;
     }>(supportersQuery, { id: viewpointGroupId });
@@ -83,88 +156,22 @@ async function getElectoralInfluenceFromAPI(
     if (supportersData.viewpointGroups?.length > 0) {
       const vg = supportersData.viewpointGroups[0];
 
-      // Count supporters by state (extracted from location string)
-      // Location can be like "California", "San Francisco, CA", "TX", etc.
-      const stateAbbreviations: Record<string, string> = {
-        alabama: "AL",
-        alaska: "AK",
-        arizona: "AZ",
-        arkansas: "AR",
-        california: "CA",
-        colorado: "CO",
-        connecticut: "CT",
-        delaware: "DE",
-        florida: "FL",
-        georgia: "GA",
-        hawaii: "HI",
-        idaho: "ID",
-        illinois: "IL",
-        indiana: "IN",
-        iowa: "IA",
-        kansas: "KS",
-        kentucky: "KY",
-        louisiana: "LA",
-        maine: "ME",
-        maryland: "MD",
-        massachusetts: "MA",
-        michigan: "MI",
-        minnesota: "MN",
-        mississippi: "MS",
-        missouri: "MO",
-        montana: "MT",
-        nebraska: "NE",
-        nevada: "NV",
-        "new hampshire": "NH",
-        "new jersey": "NJ",
-        "new mexico": "NM",
-        "new york": "NY",
-        "north carolina": "NC",
-        "north dakota": "ND",
-        ohio: "OH",
-        oklahoma: "OK",
-        oregon: "OR",
-        pennsylvania: "PA",
-        "rhode island": "RI",
-        "south carolina": "SC",
-        "south dakota": "SD",
-        tennessee: "TN",
-        texas: "TX",
-        utah: "UT",
-        vermont: "VT",
-        virginia: "VA",
-        washington: "WA",
-        "west virginia": "WV",
-        wisconsin: "WI",
-        wyoming: "WY",
-        "district of columbia": "DC",
-      };
-      const validStateAbbrevs = new Set(Object.values(stateAbbreviations));
-
       vg.profileViewpointGroupRels?.forEach((rel) => {
-        const location = rel.profile?.location;
+        const location = rel.profile?.location?.trim();
         if (location) {
-          let state: string | null = null;
-          const locationLower = location.toLowerCase().trim();
+          // Track by actual location string (for display)
+          const locCount = supportersByLocation.get(location) || 0;
+          supportersByLocation.set(location, locCount + 1);
 
-          // Try to match full state name
-          if (stateAbbreviations[locationLower]) {
-            state = stateAbbreviations[locationLower];
-          } else {
-            // Try to extract state abbreviation (e.g., "San Francisco, CA")
-            const parts = location.split(/[,\s]+/);
-            for (const part of parts) {
-              const upper = part.toUpperCase();
-              if (validStateAbbrevs.has(upper)) {
-                state = upper;
-                break;
-              }
-            }
-          }
-
+          // Also extract state (for filtering elections)
+          const state = extractState(location);
           if (state) {
-            const count = supporterStateCounts.get(state) || 0;
-            supporterStateCounts.set(state, count + 1);
+            const stateCount = supportersByState.get(state) || 0;
+            supportersByState.set(state, stateCount + 1);
           }
+        } else {
+          // Count supporters without location
+          supportersWithoutLocation++;
         }
       });
     }
@@ -175,26 +182,50 @@ async function getElectoralInfluenceFromAPI(
     );
   }
 
-  // STEP 1: Build byJurisdiction from WHERE SUPPORTERS ARE (leader-centric)
-  // This shows the leader's "electoral footprint"
-  const supporterStates = Array.from(supporterStateCounts.entries());
-  supporterStates
-    .sort((a, b) => b[1] - a[1]) // Sort by count descending
-    .forEach(([state, count]) => {
+  // Build byJurisdiction: Show actual locations as entered by supporters
+  Array.from(supportersByLocation.entries())
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([location, count]) => {
+      const state = extractState(location);
       byJurisdiction.push({
-        jurisdictionId: state, // Using state as ID since we don't have jurisdiction IDs
-        jurisdictionName: state, // State abbreviation as name
+        jurisdictionId: location,
+        jurisdictionName: location,
         supporterCount: count,
         state: state,
       });
     });
 
-  // STEP 2: Find upcoming elections ONLY in states where the leader has supporters
+  // Add supporters without location data
+  if (supportersWithoutLocation > 0) {
+    byJurisdiction.push({
+      jurisdictionId: "unknown",
+      jurisdictionName: "Unknown Location",
+      supporterCount: supportersWithoutLocation,
+      state: null,
+    });
+  }
+
+  // Step 2: Get elections ONLY in states where supporters exist
+  const supporterStates = Array.from(supportersByState.keys());
+
+  if (supporterStates.length === 0) {
+    // No supporters with identifiable states
+    return { byJurisdiction, byRace, upcomingElections };
+  }
+
   try {
+    // Query elections filtered to supporter states
     const electionsQuery = `
-      query GetUpcomingElections {
+      query GetElectionsInSupporterStates($states: [String!]!) {
         elections(
-          where: { pollDate: { _gte: "now()" } }
+          where: {
+            pollDate: { _gte: "now()" }
+            ballotItems: {
+              jurisdiction: {
+                state: { _in: $states }
+              }
+            }
+          }
           orderBy: { pollDate: ASC }
           limit: 50
         ) {
@@ -203,7 +234,6 @@ async function getElectoralInfluenceFromAPI(
           pollDate
           ballotItems {
             id
-            jurisdictionId
             jurisdiction {
               id
               name
@@ -221,7 +251,6 @@ async function getElectoralInfluenceFromAPI(
         pollDate: string | null;
         ballotItems?: Array<{
           id: string;
-          jurisdictionId: string;
           jurisdiction: {
             id: string;
             name: string | null;
@@ -229,58 +258,67 @@ async function getElectoralInfluenceFromAPI(
           } | null;
         }>;
       }>;
-    }>(electionsQuery);
+    }>(electionsQuery, { states: supporterStates });
 
-    // Filter to only elections where the leader HAS supporters
     if (electionsData.elections) {
       electionsData.elections.forEach((election) => {
         const ballotItems = election.ballotItems || [];
 
-        // Check if any ballot item is in a state where leader has supporters
-        const relevantBallotItems = ballotItems.filter((item) => {
-          const state = item.jurisdiction?.state || "";
-          return supporterStateCounts.has(state);
+        // Filter ballot items to only those in supporter states
+        const relevantBallotItems = ballotItems.filter(
+          (item) =>
+            item.jurisdiction?.state &&
+            supportersByState.has(item.jurisdiction.state)
+        );
+
+        if (relevantBallotItems.length === 0) return;
+
+        // Count supporters who can vote in this election
+        const electionStates = new Set<string>();
+        relevantBallotItems.forEach((item) => {
+          if (item.jurisdiction?.state) {
+            electionStates.add(item.jurisdiction.state);
+          }
         });
 
-        // Only include election if leader has supporters in at least one jurisdiction
-        if (relevantBallotItems.length > 0) {
-          let electionTotalSupporters = 0;
+        let electionSupporters = 0;
+        electionStates.forEach((state) => {
+          electionSupporters += supportersByState.get(state) || 0;
+        });
 
-          relevantBallotItems.forEach((item) => {
-            const state = item.jurisdiction?.state || "";
-            const supporterCount = supporterStateCounts.get(state) || 0;
-            electionTotalSupporters += supporterCount;
-
+        // Add races
+        relevantBallotItems.forEach((item) => {
+          if (item.jurisdiction) {
             byRace.push({
               raceId: item.id,
               raceName: null,
-              jurisdictionId:
-                item.jurisdiction?.id || item.jurisdictionId || "",
-              jurisdictionName: item.jurisdiction?.name || null,
+              jurisdictionId: item.jurisdiction.id,
+              jurisdictionName: item.jurisdiction.name,
               electionId: election.id,
               electionName: election.name,
               pollDate: election.pollDate,
-              supporterCount,
-            });
-          });
-
-          upcomingElections.push({
-            electionId: election.id,
-            electionName: election.name,
-            pollDate: election.pollDate,
-            totalSupporters: electionTotalSupporters,
-            races: relevantBallotItems.map((item) => ({
-              raceId: item.id,
               supporterCount:
-                supporterStateCounts.get(item.jurisdiction?.state || "") || 0,
-            })),
-          });
-        }
+                supportersByState.get(item.jurisdiction.state || "") || 0,
+            });
+          }
+        });
+
+        upcomingElections.push({
+          electionId: election.id,
+          electionName: election.name,
+          pollDate: election.pollDate,
+          totalSupporters: electionSupporters,
+          races: relevantBallotItems.map((item) => ({
+            raceId: item.id,
+            supporterCount:
+              supportersByState.get(item.jurisdiction?.state || "") || 0,
+          })),
+        });
       });
     }
   } catch (error) {
     console.warn(
-      "Could not query elections from Sway API:",
+      "Could not query elections for supporter states:",
       error instanceof Error ? error.message : error
     );
   }
