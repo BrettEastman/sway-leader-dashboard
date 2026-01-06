@@ -1,15 +1,13 @@
 import { createAdminClient } from "../supabase/admin";
+import { extractState } from "../utils";
 import { fetchSwayAPI } from "./graphql-client";
 import type {
-  ElectoralInfluenceResult,
   ElectoralInfluenceByJurisdiction,
   ElectoralInfluenceByRace,
+  ElectoralInfluenceResult,
   UpcomingElection,
 } from "./types";
 
-/**
- * Get electoral influence metrics for a leader from Supabase
- */
 async function getElectoralInfluenceFromSupabase(
   viewpointGroupId: string
 ): Promise<ElectoralInfluenceResult> {
@@ -34,88 +32,6 @@ async function getElectoralInfluenceFromSupabase(
   return data as ElectoralInfluenceResult;
 }
 
-// Helper: Extract state abbreviation from a location string
-function extractState(location: string): string | null {
-  const stateAbbreviations: Record<string, string> = {
-    alabama: "AL",
-    alaska: "AK",
-    arizona: "AZ",
-    arkansas: "AR",
-    california: "CA",
-    colorado: "CO",
-    connecticut: "CT",
-    delaware: "DE",
-    florida: "FL",
-    georgia: "GA",
-    hawaii: "HI",
-    idaho: "ID",
-    illinois: "IL",
-    indiana: "IN",
-    iowa: "IA",
-    kansas: "KS",
-    kentucky: "KY",
-    louisiana: "LA",
-    maine: "ME",
-    maryland: "MD",
-    massachusetts: "MA",
-    michigan: "MI",
-    minnesota: "MN",
-    mississippi: "MS",
-    missouri: "MO",
-    montana: "MT",
-    nebraska: "NE",
-    nevada: "NV",
-    "new hampshire": "NH",
-    "new jersey": "NJ",
-    "new mexico": "NM",
-    "new york": "NY",
-    "north carolina": "NC",
-    "north dakota": "ND",
-    ohio: "OH",
-    oklahoma: "OK",
-    oregon: "OR",
-    pennsylvania: "PA",
-    "rhode island": "RI",
-    "south carolina": "SC",
-    "south dakota": "SD",
-    tennessee: "TN",
-    texas: "TX",
-    utah: "UT",
-    vermont: "VT",
-    virginia: "VA",
-    washington: "WA",
-    "west virginia": "WV",
-    wisconsin: "WI",
-    wyoming: "WY",
-    "district of columbia": "DC",
-  };
-  const validAbbrevs = new Set(Object.values(stateAbbreviations));
-
-  const locationLower = location.toLowerCase().trim();
-
-  // Check if it's a full state name
-  if (stateAbbreviations[locationLower]) {
-    return stateAbbreviations[locationLower];
-  }
-
-  // Try to extract abbreviation from location (e.g., "San Francisco, CA")
-  const parts = location.split(/[,\s]+/);
-  for (const part of parts) {
-    const upper = part.toUpperCase();
-    if (validAbbrevs.has(upper)) {
-      return upper;
-    }
-  }
-
-  return null;
-}
-
-/**
- * Get electoral influence metrics for a leader from the Sway GraphQL API
- *
- * Shows: "Your supporters are in these states. Here are the elections they can vote in."
- * Only returns elections in states where the leader has supporters.
- */
 async function getElectoralInfluenceFromAPI(
   viewpointGroupId: string
 ): Promise<ElectoralInfluenceResult> {
@@ -124,9 +40,9 @@ async function getElectoralInfluenceFromAPI(
   const upcomingElections: UpcomingElection[] = [];
 
   // Step 1: Get supporter locations
-  // - supportersByLocation: actual locations as entered (for byJurisdiction display)
-  // - supportersByState: extracted states (for filtering elections)
+  // actual locations as entered (for byJurisdiction display)
   const supportersByLocation = new Map<string, number>();
+  // extracted states (for filtering elections)
   const supportersByState = new Map<string, number>();
   let supportersWithoutLocation = 0;
 
