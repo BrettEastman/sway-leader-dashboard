@@ -9,9 +9,16 @@ export interface ViewpointGroup {
  * Get all viewpoint groups (leaders) that have supporters
  * Only returns groups that actually have a following (supporter relationships)
  * Filters out groups with null, empty, or "Untitled Group" titles
+ *
+ * @param dataSource - Optional data source override ('sway_api' | 'supabase')
+ *                     Note: Currently only Supabase is supported for this query
  * @returns List of viewpoint groups with id and title
  */
-export async function getAllViewpointGroups(): Promise<ViewpointGroup[]> {
+export async function getAllViewpointGroups(
+  dataSource?: "supabase" | "sway_api"
+): Promise<ViewpointGroup[]> {
+  // Note: Sway API implementation for this query not yet implemented
+  // For now, always use Supabase regardless of dataSource parameter
   try {
     const supabase = createAdminClient();
 

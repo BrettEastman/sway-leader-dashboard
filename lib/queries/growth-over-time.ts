@@ -127,13 +127,15 @@ async function getGrowthOverTimeFromAPI(
 
 /**
  * Get growth over time metrics for a leader (time series of Sway Score)
- * Switches between Supabase and Sway API based on DATA_SOURCE env var
+ * Switches between Supabase and Sway API based on dataSource parameter or DATA_SOURCE env var
  *
  * @param viewpointGroupId - The viewpoint group ID the leader belongs to
+ * @param dataSource - Optional data source override ('sway_api' | 'supabase')
  * @returns Time series data showing cumulative verified voter count over time
  */
 export async function getGrowthOverTime(
-  viewpointGroupId: string
+  viewpointGroupId: string,
+  dataSource?: "supabase" | "sway_api"
 ): Promise<GrowthOverTimeResult> {
   // Input validation
   if (!viewpointGroupId || typeof viewpointGroupId !== "string") {
@@ -144,8 +146,13 @@ export async function getGrowthOverTime(
     };
   }
 
+  // Use provided dataSource or fall back to env var for backward compatibility
+  const source =
+    dataSource ||
+    (process.env.DATA_SOURCE === "SWAY_API" ? "sway_api" : "supabase");
+
   try {
-    if (process.env.DATA_SOURCE === "SWAY_API") {
+    if (source === "sway_api") {
       return await getGrowthOverTimeFromAPI(viewpointGroupId);
     }
 

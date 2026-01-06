@@ -7,18 +7,24 @@ import styles from "./LeaderCard.module.css";
 interface LeaderCardProps {
   id: string;
   title: string;
+  dataSource?: "supabase" | "sway_api";
 }
 
-export function LeaderCard({ id, title }: LeaderCardProps) {
+export function LeaderCard({ id, title, dataSource }: LeaderCardProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => {
     setIsLoading(true);
   };
 
+  const href =
+    dataSource === "sway_api"
+      ? `/leader/${id}/dashboard?dataSource=sway_api`
+      : `/leader/${id}/dashboard`;
+
   return (
     <Link
-      href={`/leader/${id}/dashboard`}
+      href={href}
       className={styles.leaderCard}
       onClick={handleClick}
     >

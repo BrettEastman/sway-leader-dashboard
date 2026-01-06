@@ -2,9 +2,6 @@ import { createAdminClient } from "../supabase/admin";
 import { fetchSwayAPI } from "./graphql-client";
 import type { NetworkReachResult, NetworkLeader } from "./types";
 
-/**
- * Get network reach metrics from Supabase
- */
 async function getNetworkReachFromSupabase(
   viewpointGroupId: string
 ): Promise<NetworkReachResult> {
@@ -29,8 +26,7 @@ async function getNetworkReachFromSupabase(
 }
 
 /**
- * Get network reach metrics from Sway GraphQL API
- *
+ * Get network reach metrics from Sway GraphQL API instead of Supabase
  * Network reach = supporters of this group who are LEADERS of other viewpoint groups
  * Uses the `type` field on profileViewpointGroupRels to identify actual leaders
  */
@@ -137,7 +133,9 @@ async function getNetworkReachFromAPI(
   }
 
   // Sort by downstream reach (highest first)
-  networkLeaders.sort((a, b) => b.downstreamVerifiedVoters - a.downstreamVerifiedVoters);
+  networkLeaders.sort(
+    (a, b) => b.downstreamVerifiedVoters - a.downstreamVerifiedVoters
+  );
 
   return {
     networkLeaders,
@@ -152,8 +150,18 @@ async function getNetworkReachFromAPI(
  * @param viewpointGroupId - The viewpoint group ID the leader belongs to
  * @returns Network leaders (supporters who became leaders) with their downstream reach
  */
+/**
+ * Get network reach metrics for a leader
+ * Finds supporters who became leaders themselves and counts their downstream verified voters
+ * Switches between Supabase and Sway API based on dataSource parameter or DATA_SOURCE env var
+ *
+ * @param viewpointGroupId - The viewpoint group ID the leader belongs to
+ * @param dataSource - Optional data source override ('sway_api' | 'supabase')
+ * @returns Network leaders (supporters who became leaders) with their downstream reach
+ */
 export async function getNetworkReach(
-  viewpointGroupId: string
+  viewpointGroupId: string,
+  dataSource?: "supabase" | "sway_api"
 ): Promise<NetworkReachResult> {
   if (!viewpointGroupId || typeof viewpointGroupId !== "string") {
     console.error("Invalid viewpointGroupId provided to getNetworkReach");
@@ -163,8 +171,13 @@ export async function getNetworkReach(
     };
   }
 
+  // Use provided dataSource or fall back to env var for backward compatibility
+  const source =
+    dataSource ||
+    (process.env.DATA_SOURCE === "SWAY_API" ? "sway_api" : "supabase");
+
   try {
-    if (process.env.DATA_SOURCE === "SWAY_API") {
+    if (source === "sway_api") {
       return await getNetworkReachFromAPI(viewpointGroupId);
     }
 
