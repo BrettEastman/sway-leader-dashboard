@@ -1,6 +1,4 @@
-/**
- * GraphQL client utility for interacting with the Sway API
- */
+import { sanitizeErrorText } from "../utils";
 
 export async function fetchSwayAPI<T>(
   query: string,
@@ -29,8 +27,9 @@ export async function fetchSwayAPI<T>(
 
     if (!response.ok) {
       const errorText = await response.text();
+      const sanitizedErrorText = sanitizeErrorText(errorText);
       throw new Error(
-        `Sway API request failed: ${response.status} ${response.statusText} - ${errorText}`
+        `Sway API request failed: ${response.status} ${response.statusText} - ${sanitizedErrorText}`
       );
     }
 

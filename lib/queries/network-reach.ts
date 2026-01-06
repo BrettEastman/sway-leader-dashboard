@@ -89,8 +89,14 @@ async function getNetworkReachFromAPI(
     if (supportersData.viewpointGroups?.length > 0) {
       const vg = supportersData.viewpointGroups[0];
 
+      // Filter to only supporters (consistent with Supabase query that filters for type "supporter")
+      const supporters =
+        vg.profileViewpointGroupRels?.filter(
+          (rel) => rel.type === "supporter"
+        ) || [];
+
       // For each supporter, find groups where they are the LEADER
-      vg.profileViewpointGroupRels?.forEach((rel) => {
+      supporters.forEach((rel) => {
         const profile = rel.profile;
         if (!profile) return;
 

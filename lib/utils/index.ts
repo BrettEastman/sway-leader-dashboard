@@ -77,3 +77,18 @@ export function extractState(location: string): string | null {
 
   return null;
 }
+
+/**
+ * Sanitize error messages to remove potentially sensitive information
+ */
+export function sanitizeErrorText(errorText: string): string {
+  let sanitized = errorText;
+
+  // Remove JWT tokens (Bearer tokens in error messages)
+  sanitized = sanitized.replace(
+    /Bearer\s+[A-Za-z0-9\-._~+\/]+=*/gi,
+    "Bearer [REDACTED]"
+  );
+
+  return sanitized;
+}
