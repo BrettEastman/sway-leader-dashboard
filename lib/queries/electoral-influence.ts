@@ -49,6 +49,7 @@ async function getElectoralInfluenceFromAPI(
   try {
     // Note: summary.supporterCount (734) may be higher than profileViewpointGroupRels (307)
     // because some supporters don't have profile data exposed through this API
+    // *NOTE:* For this project, we're capping it at 10,000 supporters - can remove this limit if needed
     const supportersQuery = `
       query GetSupportersWithLocation($id: uuid!) {
         viewpointGroups(where: { id: { _eq: $id } }) {

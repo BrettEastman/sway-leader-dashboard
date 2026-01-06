@@ -100,14 +100,12 @@ async function getGrowthOverTimeFromAPI(
     const totalGrowth =
       dataPoints.length > 0
         ? dataPoints[dataPoints.length - 1].cumulativeCount -
-          (dataPoints[0].cumulativeCount - (dataPoints[0].periodChange || 0))
+          dataPoints[0].cumulativeCount
         : 0;
 
     // Calculate growth rate as percentage
     const firstCount =
-      dataPoints.length > 0
-        ? dataPoints[0].cumulativeCount - (dataPoints[0].periodChange || 0)
-        : 0;
+      dataPoints.length > 0 ? dataPoints[0].cumulativeCount : 0;
     const growthRate =
       firstCount > 0 ? ((cumulativeCount - firstCount) / firstCount) * 100 : 0;
 
@@ -137,7 +135,6 @@ export async function getGrowthOverTime(
   viewpointGroupId: string,
   dataSource?: "supabase" | "sway_api"
 ): Promise<GrowthOverTimeResult> {
-  // Input validation
   if (!viewpointGroupId || typeof viewpointGroupId !== "string") {
     console.error("Invalid viewpointGroupId provided to getGrowthOverTime");
     return {

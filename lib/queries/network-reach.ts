@@ -25,11 +25,7 @@ async function getNetworkReachFromSupabase(
   return data as NetworkReachResult;
 }
 
-/**
- * Get network reach metrics from Sway GraphQL API instead of Supabase
- * Network reach = supporters of this group who are LEADERS of other viewpoint groups
- * Uses the `type` field on profileViewpointGroupRels to identify actual leaders
- */
+// Uses the `type` field on profileViewpointGroupRels to identify actual leaders
 async function getNetworkReachFromAPI(
   viewpointGroupId: string
 ): Promise<NetworkReachResult> {
@@ -39,6 +35,7 @@ async function getNetworkReachFromAPI(
   try {
     // Get all supporters/members of this viewpoint group with their profile info
     // Include the `type` field to identify their role in each group
+    // *NOTE:* For this project, we're capping it at 10,000 supporters - can remove this limit if needed
     const supportersQuery = `
       query GetSupportersWithProfiles($id: uuid!) {
         viewpointGroups(where: { id: { _eq: $id } }) {
@@ -143,13 +140,6 @@ async function getNetworkReachFromAPI(
   };
 }
 
-/**
- * Get network reach metrics for a leader
- * Finds supporters who became leaders themselves and counts their downstream verified voters
- *
- * @param viewpointGroupId - The viewpoint group ID the leader belongs to
- * @returns Network leaders (supporters who became leaders) with their downstream reach
- */
 /**
  * Get network reach metrics for a leader
  * Finds supporters who became leaders themselves and counts their downstream verified voters
