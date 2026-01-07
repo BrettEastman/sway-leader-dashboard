@@ -39,7 +39,9 @@ export function DataSourceToggle() {
         }`}
       >
         <span className={styles.toggleLabel}>
-          {dataSource === "sway_api" ? "Sway API" : "Test Data"}
+          {dataSource === "sway_api"
+            ? "Switch to Test Data"
+            : "Switch to Sway API"}
         </span>
         <span className={styles.toggleSwitch} />
       </button>

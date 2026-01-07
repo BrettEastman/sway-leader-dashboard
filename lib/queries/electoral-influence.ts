@@ -130,13 +130,15 @@ async function getElectoralInfluenceFromAPI(
     return { byJurisdiction, byRace, upcomingElections };
   }
 
+  const nowIso = new Date().toISOString();
+
   try {
     // Query elections filtered to supporter states
     const electionsQuery = `
       query GetElectionsInSupporterStates($states: [String!]!) {
         elections(
           where: {
-            pollDate: { _gte: "now()" }
+            pollDate: { _gte: ${nowIso} }
             ballotItems: {
               jurisdiction: {
                 state: { _in: $states }
