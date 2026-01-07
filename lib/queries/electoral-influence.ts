@@ -135,10 +135,10 @@ async function getElectoralInfluenceFromAPI(
   try {
     // Query elections filtered to supporter states
     const electionsQuery = `
-      query GetElectionsInSupporterStates($states: [String!]!) {
+      query GetElectionsInSupporterStates($states: [String!]!, $nowIso: date!) {
         elections(
           where: {
-            pollDate: { _gte: ${nowIso} }
+            pollDate: { _gte: $nowIso }
             ballotItems: {
               jurisdiction: {
                 state: { _in: $states }
@@ -177,7 +177,10 @@ async function getElectoralInfluenceFromAPI(
           } | null;
         }>;
       }>;
-    }>(electionsQuery, { states: supporterStates });
+    }>(electionsQuery, {
+      states: supporterStates,
+      nowIso: nowIso.split("T")[0],
+    });
 
     if (electionsData.elections) {
       electionsData.elections.forEach((election) => {
