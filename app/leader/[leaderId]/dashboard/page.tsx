@@ -20,11 +20,18 @@ import styles from "./page.module.css";
 
 interface DashboardPageProps {
   params: Promise<{ leaderId: string }>;
+  searchParams: Promise<{ dataSource?: string }>;
 }
 
-export default async function DashboardPage({ params }: DashboardPageProps) {
+export default async function DashboardPage({
+  params,
+  searchParams,
+}: DashboardPageProps) {
   const { leaderId } = await params;
+  const { dataSource } = await searchParams;
   const viewpointGroupId = leaderId;
+  const dataSourceValue =
+    dataSource === "sway_api" ? ("sway_api" as const) : ("supabase" as const);
 
   // Validate viewpointGroupId format (basic UUID check)
   const uuidRegex =
@@ -50,10 +57,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   try {
     [swayScore, electoralInfluence, growthOverTime, networkReach] =
       await Promise.all([
-        getSwayScore(viewpointGroupId),
-        getElectoralInfluence(viewpointGroupId),
-        getGrowthOverTime(viewpointGroupId),
-        getNetworkReach(viewpointGroupId),
+        getSwayScore(viewpointGroupId, dataSourceValue),
+        getElectoralInfluence(viewpointGroupId, dataSourceValue),
+        getGrowthOverTime(viewpointGroupId, dataSourceValue),
+        getNetworkReach(viewpointGroupId, dataSourceValue),
       ]);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -84,7 +91,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
-        <Link href="/" className={styles.titleLink}>
+        <Link
+          href={dataSourceValue === "sway_api" ? "/?dataSource=sway_api" : "/"}
+          className={styles.titleLink}
+        >
           <h1 className={styles.title}>Leader Dashboard</h1>
         </Link>
         <p className={styles.subtitle}>Influence metrics and insights</p>
