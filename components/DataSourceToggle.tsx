@@ -26,16 +26,23 @@ export function DataSourceToggle() {
     router.push(`/?${params.toString()}`);
   };
 
+  const toggleId = "data-source-toggle";
+
   return (
     <div className={styles.toggleContainer}>
-      <label className={styles.label}>Data Source:</label>
+      <label htmlFor={toggleId} className={styles.label}>
+        Data Source:
+      </label>
       <button
+        id={toggleId}
         onClick={handleToggle}
         className={`${styles.toggle} ${
           dataSource === "sway_api" ? styles.active : ""
         }`}
-        aria-label={`Using ${
+        aria-label={`Toggle data source. Currently using ${
           dataSource === "sway_api" ? "Sway API" : "Test Data"
+        }. Click to switch to ${
+          dataSource === "sway_api" ? "Test Data" : "Sway API"
         }`}
       >
         <span className={styles.toggleLabel}>
@@ -43,7 +50,7 @@ export function DataSourceToggle() {
             ? "Switch to Test Data"
             : "Switch to Sway API"}
         </span>
-        <span className={styles.toggleSwitch} />
+        <span className={styles.toggleSwitch} aria-hidden="true" />
       </button>
     </div>
   );

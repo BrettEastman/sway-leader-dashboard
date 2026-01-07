@@ -38,7 +38,12 @@ export default async function DashboardPage({
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(viewpointGroupId)) {
     return (
-      <div className={styles.errorContainer}>
+      <div
+        className={styles.errorContainer}
+        role="alert"
+        aria-live="assertive"
+        aria-label="Invalid leader ID error"
+      >
         <h1 className={styles.errorTitle}>Invalid Leader ID</h1>
         <p className={styles.errorMessage}>
           The provided leader ID is not in a valid format.
@@ -75,7 +80,12 @@ export default async function DashboardPage({
     !networkReach
   ) {
     return (
-      <div className={styles.errorContainer}>
+      <div
+        className={styles.errorContainer}
+        role="alert"
+        aria-live="assertive"
+        aria-label="Error loading dashboard"
+      >
         <h1 className={styles.errorTitle}>Error Loading Dashboard</h1>
         <p className={styles.errorMessage}>
           An error occurred while loading the dashboard data. Please try again
@@ -90,19 +100,23 @@ export default async function DashboardPage({
 
   return (
     <div className={styles.dashboard}>
-      <header className={styles.header}>
+      <header className={styles.header} role="banner">
         <Link
           href={dataSourceValue === "sway_api" ? "/?dataSource=sway_api" : "/"}
           className={styles.titleLink}
+          aria-label="Navigate to home page"
         >
           <h1 className={styles.title}>Leader Dashboard</h1>
         </Link>
         <p className={styles.subtitle}>Influence metrics and insights</p>
       </header>
 
-      <main className={styles.main}>
+      <main className={styles.main} aria-label="Leader dashboard main content">
         {/* Metrics Grid - 2x2 Layout */}
-        <section className={styles.metricsGrid}>
+        <section
+          className={styles.metricsGrid}
+          aria-label="Dashboard metrics grid"
+        >
           <div className={styles.metricItem}>
             <SwayScoreCard
               swayScore={swayScore}
@@ -121,7 +135,10 @@ export default async function DashboardPage({
         </section>
 
         {/* Network Reach - Full Width Below Grid */}
-        <section className={styles.networkReachSection}>
+        <section
+          className={styles.networkReachSection}
+          aria-label="Network reach section"
+        >
           <div className={`${styles.metricItem} ${styles.scrollable}`}>
             <NetworkReachTable data={networkReach} />
           </div>

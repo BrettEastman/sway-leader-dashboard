@@ -48,7 +48,12 @@ export default async function Home({ searchParams }: HomeProps) {
               ))}
             </div>
           ) : (
-            <div className={styles.emptyState}>
+            <div
+              className={styles.emptyState}
+              role="status"
+              aria-live="polite"
+              aria-label="No voting groups available"
+            >
               <p>No leaders found</p>
             </div>
           )}
