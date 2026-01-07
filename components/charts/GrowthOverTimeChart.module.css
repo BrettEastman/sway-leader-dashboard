@@ -46,8 +46,11 @@
   }
 
   .chartContainer {
-    height: 100%;
-    flex: 1;
-    min-height: 0;
+    /* Recharts' ResponsiveContainer needs a definite height; 100% can resolve to 0 on iOS Safari */
+    height: clamp(220px, 35vh, 280px);
+  }
+
+  .emptyState {
+    height: clamp(220px, 35vh, 280px);
   }
 }

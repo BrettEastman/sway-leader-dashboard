@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useEffect } from "react";
 import styles from "./GrowthOverTimeChart.module.css";
 
 interface GrowthOverTimeChartProps {
@@ -17,6 +18,14 @@ interface GrowthOverTimeChartProps {
 }
 
 export function GrowthOverTimeChart({ data }: GrowthOverTimeChartProps) {
+  // iOS Safari can report 0px container size on first paint; nudge Recharts to re-measure.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, []);
+
   // Format dates for display
   const chartData = data.dataPoints.map((point) => ({
     date: new Date(point.date).toLocaleDateString("en-US", {
@@ -39,7 +48,7 @@ export function GrowthOverTimeChart({ data }: GrowthOverTimeChartProps) {
         </div>
       ) : (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={220}>
             <LineChart
               data={chartData}
               margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
