@@ -27,6 +27,7 @@ export function LeaderCard({ id, title, dataSource }: LeaderCardProps) {
       href={href}
       className={styles.leaderCard}
       onClick={handleClick}
+      aria-label={`View dashboard for ${title}`}
     >
       <h2 className={styles.leaderTitle}>{title}</h2>
       {isLoading ? (
