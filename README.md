@@ -70,21 +70,11 @@ Each metric is designed to lead directly to insight and action.
 - **Deployed on Vercel**
 
 The application supports **dual data sources** via an adapter pattern:
+
 - **Supabase**: Test data stored in a relational database with RPC functions for complex metrics
 - **Sway GraphQL API**: Production data from Sway's public API (https://www.sway.co/docs/api)
 
 Users can switch between data sources using a toggle on the home page. All metrics are computed using the selected data source.
-
----
-
-## Tradeoffs & Simplifications
-
-- Single leader context
-- Read-only analytics
-- No real-time updates
-- No geographic map visualizations
-
-These decisions keep the scope appropriate for a quickly built prototype.
 
 ---
 
@@ -156,6 +146,7 @@ cp .env.example .env.local
 Then edit `.env.local` and add your credentials:
 
 **For Supabase (Test Data):**
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-publishable-key
@@ -163,12 +154,14 @@ SUPABASE_SECRET_KEY=your-secret-key
 ```
 
 **For Sway API (Production Data - Optional):**
+
 ```
 SWAY_API_URL=https://sway-production.hasura.app/v1/graphql
 SWAY_JWT=your-jwt-token
 ```
 
 **Note:**
+
 - The `SUPABASE_SECRET_KEY` (also called "secret" key in the dashboard) is used for admin operations that bypass RLS
 - To get a `SWAY_JWT`, exchange your API key: `curl -X POST https://api.sway.co/rest/auth/token -H "x-api-key: YOUR_API_KEY"`
 - The UI toggle on the home page is the preferred way to switch data sources (no env var needed)
@@ -234,6 +227,7 @@ Visit `http://localhost:3000` to see the application.
 ### Switching Data Sources
 
 Use the **Data Source** toggle on the home page to switch between:
+
 - **Test Data** (Supabase) - Requires Supabase setup and data loading
 - **Sway API** (Production) - Requires `SWAY_API_URL` and `SWAY_JWT` in `.env.local`
 

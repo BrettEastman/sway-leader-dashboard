@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./DataSourceToggle.module.css";
 
+// In client components, we can use the useSearchParams hook to get the current search params.
+
 export function DataSourceToggle() {
   const router = useRouter();
   const searchParams = useSearchParams();
