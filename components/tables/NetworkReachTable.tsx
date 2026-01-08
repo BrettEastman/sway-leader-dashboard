@@ -76,11 +76,7 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
           </div>
         </>
       ) : (
-        <div
-          className={styles.emptyState}
-          role="status"
-          aria-label="No network leaders found"
-        >
+        <div className={styles.emptyState} role="status">
           <p>No network leaders found</p>
         </div>
       )}

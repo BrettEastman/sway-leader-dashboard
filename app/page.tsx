@@ -24,10 +24,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <h1 className={styles.title}>Sway Voting Groups</h1>
             <DataSourceToggle />
           </div>
-          <p
-            className={styles.subtitle}
-            aria-label="Sway Voting Groups home page subtitle"
-          >
+          <p className={styles.subtitle}>
             Select a voting group to view their influence metrics
           </p>
 
@@ -47,12 +44,7 @@ export default async function Home({ searchParams }: HomeProps) {
               ))}
             </div>
           ) : (
-            <div
-              className={styles.emptyState}
-              role="status"
-              aria-live="polite"
-              aria-label="No voting groups available"
-            >
+            <div className={styles.emptyState} role="status" aria-live="polite">
               <p>No leaders found</p>
             </div>
           )}
