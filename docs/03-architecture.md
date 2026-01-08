@@ -27,12 +27,29 @@ Rationale:
 
 ## Data Access
 
-- **Supabase Postgres**: Relational database for all data
-- **Server-side queries**: Metrics are triggered from Next.js Server Components.
-- **Optimized RPCs**: Complex metrics use **Supabase RPC functions** to perform multi-stage joins and window functions directly on the database server.
-- **Query functions**: Reusable functions in `lib/queries/` act as a clean interface between the Next.js frontend and the database RPCs.
+The application uses an **adapter pattern** to support dual data sources:
+
+### Data Sources
+
+1. **Supabase Postgres** (Test Data)
+
+   - Relational database for test/development data
+   - **Optimized RPCs**: Complex metrics use **Supabase RPC functions** to perform multi-stage joins and window functions directly on the database server
+   - All data comes from the database at runtime
+
+2. **Sway GraphQL API** (Production Data)
+   - Production data from Sway's public GraphQL API
+   - Queries use GraphQL introspection to discover available fields
+   - JWT authentication via `SWAY_JWT` environment variable
+   - See `docs/08-sway-api-schema.md` for schema documentation
+
+### Query Architecture
+
+- **Server-side queries**: Metrics are triggered from Next.js Server Components
+- **Query functions**: Reusable functions in `lib/queries/` act as a clean interface between the Next.js frontend and data sources
+- **Adapter pattern**: Each query function (`getSwayScore`, `getGrowthOverTime`, etc.) has `FromSupabase` and `FromAPI` variants, with the main function switching based on the `dataSource` parameter
 - **Type safety**: Shared TypeScript types between queries and components
-- **No static JSON imports**: All data comes from the database at runtime
+- **Runtime switching**: Users can toggle data sources via UI (URL query parameter: `?dataSource=sway_api`)
 
 ## Folder Structure
 
@@ -54,17 +71,19 @@ components/
   ├── tables/                        # Table components
   │   ├── ElectoralInfluenceTable.tsx
   │   └── NetworkReachTable.tsx
-  └── LeaderCard.tsx                # Leader selection card
+  ├── LeaderCard.tsx                # Leader selection card
+  └── DataSourceToggle.tsx          # Data source switcher (Client Component)
 
 lib/
   ├── queries/                       # Server-side query functions
-  │   ├── sway-score.ts
-  │   ├── electoral-influence.ts
-  │   ├── growth-over-time.ts
-  │   ├── network-reach.ts
-  │   ├── viewpoint-groups.ts
-  │   ├── types.ts                  # Shared TypeScript types
-  │   └── index.ts                  # Public exports
+  │   ├── sway-score.ts              # Adapter: Supabase + Sway API
+  │   ├── electoral-influence.ts     # Adapter: Supabase + Sway API
+  │   ├── growth-over-time.ts         # Adapter: Supabase + Sway API
+  │   ├── network-reach.ts           # Adapter: Supabase + Sway API
+  │   ├── viewpoint-groups.ts        # Viewpoint group queries
+  │   ├── graphql-client.ts          # Sway GraphQL API client
+  │   ├── types.ts                   # Shared TypeScript types
+  │   └── index.ts                   # Public exports
   ├── supabase/                      # Supabase client utilities
   │   ├── client.ts                 # Client-side client
   │   ├── server.ts                 # Server-side client
@@ -84,5 +103,8 @@ supabase/
 ## Component Architecture
 
 - **Server Components** (default): All page components and most data-fetching components
-- **Client Components**: Only `GrowthOverTimeChart` (requires Recharts interactivity)
+- **Client Components**:
+  - `GrowthOverTimeChart` (requires Recharts interactivity)
+  - `DataSourceToggle` (handles URL query parameter updates)
+  - `LeaderCard` (handles navigation with query params)
 - **CSS Modules**: Scoped styling for each component (`.module.css` files)

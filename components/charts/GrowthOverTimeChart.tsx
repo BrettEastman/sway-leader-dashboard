@@ -37,17 +37,33 @@ export function GrowthOverTimeChart({ data }: GrowthOverTimeChartProps) {
   }));
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      role="region"
+      aria-labelledby="growth-chart-title"
+    >
       <div className={styles.header}>
-        <h2 className={styles.title}>Growth Over Time</h2>
+        <h2 id="growth-chart-title" className={styles.title}>
+          Growth Over Time
+        </h2>
         <p className={styles.subtitle}>Cumulative verified voter count</p>
       </div>
       {chartData.length === 0 ? (
-        <div className={styles.emptyState}>
+        <div className={styles.emptyState} role="status">
           <p>No growth data available</p>
         </div>
       ) : (
-        <div className={styles.chartContainer}>
+        <div
+          className={styles.chartContainer}
+          role="img"
+          aria-label={`Line chart showing cumulative verified voter count over time. Data points range from ${
+            chartData[0].fullDate
+          } to ${
+            chartData[chartData.length - 1].fullDate
+          }. Current count: ${new Intl.NumberFormat("en-US").format(
+            chartData[chartData.length - 1].count
+          )} verified voters.`}
+        >
           <ResponsiveContainer width="100%" height="100%" minHeight={220}>
             <LineChart
               data={chartData}

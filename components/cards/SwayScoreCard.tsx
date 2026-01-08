@@ -66,13 +66,26 @@ export function SwayScoreCard({
   };
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      role="region"
+      aria-labelledby="sway-score-title"
+    >
       <div className={styles.header}>
-        <h2 className={styles.title}>Sway Score</h2>
+        <h2 id="sway-score-title" className={styles.title}>
+          Sway Score
+        </h2>
         <p className={styles.subtitle}>Total verified voters aligned</p>
       </div>
       <div className={styles.content}>
-        <div className={styles.score}>{formatNumber(swayScore.count)}</div>
+        <div
+          className={styles.score}
+          aria-label={`Sway Score: ${formatNumber(
+            swayScore.count
+          )} verified voters`}
+        >
+          {formatNumber(swayScore.count)}
+        </div>
         {totalSupporters > 0 && (
           <div className={styles.totalSupporters}>
             out of {formatNumber(totalSupporters)} total supporters
@@ -83,8 +96,21 @@ export function SwayScoreCard({
             className={`${styles.trend} ${
               weekOverWeekChange > 0 ? styles.trendUp : styles.trendDown
             }`}
+            role="status"
+            aria-live="polite"
+            aria-label={
+              weekOverWeekChange > 0
+                ? `Increased by ${formatNumber(Math.abs(weekOverWeekChange))}${
+                    weekOverWeekPercentage
+                      ? ` (${weekOverWeekPercentage}% increase)`
+                      : ""
+                  } from last week`
+                : `Decreased by ${formatNumber(
+                    Math.abs(weekOverWeekChange)
+                  )} from last week`
+            }
           >
-            <span className={styles.trendArrow}>
+            <span className={styles.trendArrow} aria-hidden="true">
               {weekOverWeekChange > 0 ? "↑" : "↓"}
             </span>
             <span className={styles.trendValue}>

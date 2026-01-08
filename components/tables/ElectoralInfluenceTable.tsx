@@ -42,9 +42,15 @@ export function ElectoralInfluenceTable({
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      role="region"
+      aria-labelledby="electoral-influence-title"
+    >
       <div className={styles.header}>
-        <h2 className={styles.title}>Electoral Influence</h2>
+        <h2 id="electoral-influence-title" className={styles.title}>
+          Electoral Influence
+        </h2>
         <p className={styles.subtitle}>
           Voters supporting this group, arranged by jurisdiction
         </p>
@@ -53,7 +59,14 @@ export function ElectoralInfluenceTable({
       {sortedJurisdictions.length > 0 ? (
         <>
           <div className={styles.tableWrapper}>
-            <table className={styles.table}>
+            <table
+              className={styles.table}
+              aria-label="Electoral influence by jurisdiction"
+            >
+              <caption className={styles.caption}>
+                Table showing voters supporting this group, arranged by
+                jurisdiction
+              </caption>
               <thead>
                 <tr>
                   <th className={styles.th}>Jurisdiction</th>
@@ -81,7 +94,7 @@ export function ElectoralInfluenceTable({
           </div>
         </>
       ) : (
-        <div className={styles.emptyState}>
+        <div className={styles.emptyState} role="status">
           <p>No electoral influence data available</p>
         </div>
       )}

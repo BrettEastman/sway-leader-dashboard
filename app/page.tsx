@@ -1,5 +1,5 @@
-import { LeaderCard } from "@/components/LeaderCard";
 import { DataSourceToggle } from "@/components/DataSourceToggle";
+import { LeaderCard } from "@/components/LeaderCard";
 import { getAllViewpointGroups } from "@/lib/queries/viewpoint-groups";
 import styles from "./page.module.css";
 
@@ -15,18 +15,28 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
+      <main className={styles.main} aria-label="Sway Voting Groups home page">
         <div className={styles.container}>
-          <div className={styles.header}>
+          <div
+            className={styles.header}
+            aria-label="Sway Voting Groups home page header"
+          >
             <h1 className={styles.title}>Sway Voting Groups</h1>
             <DataSourceToggle />
           </div>
-          <p className={styles.subtitle}>
+          <p
+            className={styles.subtitle}
+            aria-label="Sway Voting Groups home page subtitle"
+          >
             Select a voting group to view their influence metrics
           </p>
 
           {viewpointGroups.length > 0 ? (
-            <div className={styles.leadersList}>
+            <div
+              className={styles.leadersList}
+              role="list"
+              aria-label="List of voting groups"
+            >
               {viewpointGroups.map((group) => (
                 <LeaderCard
                   key={group.id}
@@ -37,7 +47,12 @@ export default async function Home({ searchParams }: HomeProps) {
               ))}
             </div>
           ) : (
-            <div className={styles.emptyState}>
+            <div
+              className={styles.emptyState}
+              role="status"
+              aria-live="polite"
+              aria-label="No voting groups available"
+            >
               <p>No leaders found</p>
             </div>
           )}

@@ -7,7 +7,7 @@
 .label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary, #666);
+  color: var(--text-secondary);
 }
 
 .toggle {
@@ -15,25 +15,31 @@
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1rem;
-  background: var(--bg-secondary, #f5f5f5);
-  border: 1px solid var(--border-color, #ddd);
-  border-radius: 0.5rem;
+  background: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-primary, #333);
+  color: var(--text-primary);
 }
 
 .toggle:hover {
-  background: var(--bg-hover, #e8e8e8);
-  border-color: var(--border-hover, #bbb);
+  background: var(--card-background);
+  border-color: var(--accent);
+  opacity: 0.9;
 }
 
 .toggle.active {
-  background: var(--primary-color, #0070f3);
+  background: var(--accent);
   color: white;
-  border-color: var(--primary-color, #0070f3);
+  border-color: var(--accent);
+}
+
+.toggle.active:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .toggleLabel {
@@ -44,7 +50,7 @@
   position: relative;
   width: 2.5rem;
   height: 1.25rem;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--card-border);
   border-radius: 0.625rem;
   transition: background 0.2s ease;
 }
@@ -63,6 +69,11 @@
   background: white;
   border-radius: 50%;
   transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.toggle.active .toggleSwitch::after {
+  background: white;
 }
 
 .toggle.active .toggleSwitch::after {

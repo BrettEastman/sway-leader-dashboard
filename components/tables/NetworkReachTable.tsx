@@ -16,9 +16,15 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      role="region"
+      aria-labelledby="network-reach-title"
+    >
       <div className={styles.header}>
-        <h2 className={styles.title}>Network Reach</h2>
+        <h2 id="network-reach-title" className={styles.title}>
+          Network Reach
+        </h2>
         <p className={styles.subtitle}>
           Voters supporting this group who became leaders themselves
         </p>
@@ -26,7 +32,7 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
 
       {sortedLeaders.length > 0 ? (
         <>
-          <div className={styles.summary}>
+          <div className={styles.summary} role="status">
             <span className={styles.summaryLabel}>Total downstream reach:</span>
             <span className={styles.summaryValue}>
               {formatNumber(data.totalDownstreamReach)} verified voters
@@ -34,7 +40,14 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
           </div>
 
           <div className={styles.tableWrapper}>
-            <table className={styles.table}>
+            <table
+              className={styles.table}
+              aria-label="Network reach table showing downstream voters by leader"
+            >
+              <caption className={styles.caption}>
+                Table showing voters supporting this group who became leaders
+                themselves
+              </caption>
               <thead>
                 <tr>
                   <th className={styles.th}>Leader</th>
@@ -63,7 +76,11 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
           </div>
         </>
       ) : (
-        <div className={styles.emptyState}>
+        <div
+          className={styles.emptyState}
+          role="status"
+          aria-label="No network leaders found"
+        >
           <p>No network leaders found</p>
         </div>
       )}

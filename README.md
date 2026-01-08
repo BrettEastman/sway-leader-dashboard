@@ -63,12 +63,17 @@ Each metric is designed to lead directly to insight and action.
 
 - **Next.js 16 (App Router with React Compiler)**
 - **TypeScript**
-- **Supabase (Postgres)**
+- **Supabase (Postgres)** - Test data source
+- **Sway GraphQL API** - Production data source
 - **Scoped CSS-in-JS**
 - **Recharts** (charts)
 - **Deployed on Vercel**
 
-All data is modeled and queried from a Supabase relational database. Complex metrics are computed using **Supabase RPC functions (PostgreSQL)** to ensure high-performance joins and aggregations.
+The application supports **dual data sources** via an adapter pattern:
+- **Supabase**: Test data stored in a relational database with RPC functions for complex metrics
+- **Sway GraphQL API**: Production data from Sway's public API (https://www.sway.co/docs/api)
+
+Users can switch between data sources using a toggle on the home page. All metrics are computed using the selected data source.
 
 ---
 
@@ -148,15 +153,25 @@ Create a `.env.local` file in the project root:
 cp .env.example .env.local
 ```
 
-Then edit `.env.local` and add your Supabase credentials:
+Then edit `.env.local` and add your credentials:
 
+**For Supabase (Test Data):**
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-publishable-key
 SUPABASE_SECRET_KEY=your-secret-key
 ```
 
-**Note:** The `SUPABASE_SECRET_KEY` (also called "secret" key in the dashboard) is used for admin operations that bypass RLS. The `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` is used for regular client operations.
+**For Sway API (Production Data - Optional):**
+```
+SWAY_API_URL=https://sway-production.hasura.app/v1/graphql
+SWAY_JWT=your-jwt-token
+```
+
+**Note:**
+- The `SUPABASE_SECRET_KEY` (also called "secret" key in the dashboard) is used for admin operations that bypass RLS
+- To get a `SWAY_JWT`, exchange your API key: `curl -X POST https://api.sway.co/rest/auth/token -H "x-api-key: YOUR_API_KEY"`
+- The UI toggle on the home page is the preferred way to switch data sources (no env var needed)
 
 ### 4. Copy/paste Supabase Credentials
 
@@ -215,3 +230,11 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` to see the application.
+
+### Switching Data Sources
+
+Use the **Data Source** toggle on the home page to switch between:
+- **Test Data** (Supabase) - Requires Supabase setup and data loading
+- **Sway API** (Production) - Requires `SWAY_API_URL` and `SWAY_JWT` in `.env.local`
+
+The selection persists through navigation via URL query parameters (`?dataSource=sway_api`).

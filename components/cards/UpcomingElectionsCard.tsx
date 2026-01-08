@@ -38,16 +38,30 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
   }
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      role="region"
+      aria-labelledby="upcoming-elections-title"
+    >
       <div className={styles.header}>
-        <h2 className={styles.title}>Upcoming Elections</h2>
+        <h2 id="upcoming-elections-title" className={styles.title}>
+          Upcoming Elections
+        </h2>
         <p className={styles.subtitle}>
           Voters supporting this group who can influence other elections
         </p>
       </div>
-      <div className={styles.electionsList}>
+      <div
+        className={styles.electionsList}
+        role="list"
+        aria-label={`${data.upcomingElections.length} upcoming elections`}
+      >
         {data.upcomingElections.map((election) => (
-          <div key={election.electionId} className={styles.electionItem}>
+          <div
+            key={election.electionId}
+            className={styles.electionItem}
+            role="listitem"
+          >
             <div className={styles.electionHeader}>
               <span className={styles.electionName}>
                 {election.electionName || "Unknown Election"}
@@ -57,9 +71,12 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
               </span>
             </div>
             {election.pollDate && (
-              <div className={styles.electionDate}>
+              <time
+                className={styles.electionDate}
+                dateTime={election.pollDate}
+              >
                 {formatDate(election.pollDate)}
-              </div>
+              </time>
             )}
           </div>
         ))}
