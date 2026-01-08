@@ -61,18 +61,12 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
             key={election.electionId}
             className={styles.electionItem}
             role="listitem"
-            aria-label={`Upcoming election: ${election.electionName}`}
           >
             <div className={styles.electionHeader}>
               <span className={styles.electionName}>
                 {election.electionName || "Unknown Election"}
               </span>
-              <span
-                className={styles.electionCount}
-                aria-label={`${formatNumber(
-                  election.totalSupporters
-                )} supporters can influence this election`}
-              >
+              <span className={styles.electionCount}>
                 {formatNumber(election.totalSupporters)} supporters
               </span>
             </div>
@@ -80,7 +74,6 @@ export function UpcomingElectionsCard({ data }: UpcomingElectionsCardProps) {
               <time
                 className={styles.electionDate}
                 dateTime={election.pollDate}
-                aria-label={`Poll date: ${formatDate(election.pollDate)}`}
               >
                 {formatDate(election.pollDate)}
               </time>

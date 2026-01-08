@@ -83,17 +83,11 @@ export function SwayScoreCard({
           aria-label={`Sway Score: ${formatNumber(
             swayScore.count
           )} verified voters`}
-          role="text"
         >
           {formatNumber(swayScore.count)}
         </div>
         {totalSupporters > 0 && (
-          <div
-            className={styles.totalSupporters}
-            aria-label={`Out of ${formatNumber(
-              totalSupporters
-            )} total supporters`}
-          >
+          <div className={styles.totalSupporters}>
             out of {formatNumber(totalSupporters)} total supporters
           </div>
         )}

@@ -22,7 +22,9 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
       aria-labelledby="network-reach-title"
     >
       <div className={styles.header}>
-        <h2 id="network-reach-title" className={styles.title}>Network Reach</h2>
+        <h2 id="network-reach-title" className={styles.title}>
+          Network Reach
+        </h2>
         <p className={styles.subtitle}>
           Voters supporting this group who became leaders themselves
         </p>
@@ -30,11 +32,7 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
 
       {sortedLeaders.length > 0 ? (
         <>
-          <div
-            className={styles.summary}
-            role="status"
-            aria-label={`Total downstream reach: ${formatNumber(data.totalDownstreamReach)} verified voters`}
-          >
+          <div className={styles.summary} role="status">
             <span className={styles.summaryLabel}>Total downstream reach:</span>
             <span className={styles.summaryValue}>
               {formatNumber(data.totalDownstreamReach)} verified voters
@@ -47,7 +45,8 @@ export function NetworkReachTable({ data }: NetworkReachTableProps) {
               aria-label="Network reach table showing downstream voters by leader"
             >
               <caption className={styles.caption}>
-                Table showing voters supporting this group who became leaders themselves
+                Table showing voters supporting this group who became leaders
+                themselves
               </caption>
               <thead>
                 <tr>

@@ -20,7 +20,6 @@ export default async function Home({ searchParams }: HomeProps) {
           <div
             className={styles.header}
             aria-label="Sway Voting Groups home page header"
-            role="banner"
           >
             <h1 className={styles.title}>Sway Voting Groups</h1>
             <DataSourceToggle />
