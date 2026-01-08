@@ -84,6 +84,7 @@ async function getAllViewpointGroupsFromAPI(): Promise<ViewpointGroup[]> {
       }
     `;
 
+    // * Note that this is the raw API response type coming from the GraphQL API. The final return type (ViewpointGroup[]) comes after the filtering and sorting.
     const data = await fetchSwayAPI<{
       viewpointGroups: Array<{
         id: string;

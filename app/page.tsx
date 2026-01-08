@@ -3,14 +3,18 @@ import { LeaderCard } from "@/components/LeaderCard";
 import { getAllViewpointGroups } from "@/lib/queries/viewpoint-groups";
 import styles from "./page.module.css";
 
+// In Next.js 15+, searchParams is automatically provided to page components by the framework. It is a promise that resolves to an object of the search parameters.
 interface HomeProps {
   searchParams: Promise<{ dataSource?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
+  // We get just the dataSource param from searchParams so we can find out if it is set to "sway_api" or not
   const { dataSource } = await searchParams;
+  // We create dataSourceValue as a const of either "sway_api" or "supabase" based on the dataSource param
   const dataSourceValue =
     dataSource === "sway_api" ? ("sway_api" as const) : ("supabase" as const);
+  // Then, we call the getAllViewpointGroups function with the dataSourceValue to get either the list of viewpoint groups from the Sway API or the test data from Supabase
   const viewpointGroups = await getAllViewpointGroups(dataSourceValue);
 
   return (
