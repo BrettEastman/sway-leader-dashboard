@@ -1,4 +1,4 @@
-# Leader Influence Dashboard
+# Leader Influence Dashboard (Archived)
 
 ## Overview
 
@@ -6,7 +6,9 @@ This project is a prototype **Leader Influence Dashboard** take home project for
 
 The dashboard focuses on credible political influence: verified voters, electoral concentration, and real-world relevance.
 
-View the deployed application [here!](https://sway-leader-dashboard.vercel.app/)
+This project has been archived and is no longer deployed, but here are two images of it as it was:
+<img width="1230" height="660" alt="Screenshot 2026-01-19 at 12 21 37 PM" src="https://github.com/user-attachments/assets/85080d99-9fa6-407d-8cf7-b9e722ae4704" />
+<img width="1230" height="490" alt="Screenshot 2026-01-19 at 12 22 54 PM" src="https://github.com/user-attachments/assets/34bc550c-9b0f-4c36-9935-0ded8c23d367" />
 
 ---
 
